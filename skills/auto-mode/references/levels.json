@@ -1,0 +1,119 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "auto-mode 权限配置唯一权威源。修改权限列表只需修改此文件。SKILL.md 引用此文件，不重复硬编码。",
+    "templateAllNote": "TEMPLATE_ALL 在运行时由 L1+L2+L3 的 allow 条目自动聚合（并集去重），不在此文件中单独维护。"
+  },
+  "off": {
+    "description": "日常模式：diff 恢复用户原始白名单 + 用户手动添加的权限",
+    "permissions": null,
+    "note": "恢复时从 .claude/settings-backup.json 读取用户原始 permissions。使用三向 diff 算法（backup vs current vs TEMPLATE_ALL）精确回滚 auto-mode 新增条目，同时保留用户在 auto-mode 期间手动添加的自定义权限。备份不存在时移除 permissions 字段恢复 CC 默认行为。"
+  },
+  "1": {
+    "description": "轻量自动：文件读写+搜索+Web 免确认，Bash/Agent/MCP 仍需确认",
+    "permissions": {
+      "allow": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Edit",
+        "Write",
+        "WebFetch",
+        "WebSearch",
+        "NotebookEdit"
+      ]
+    }
+  },
+  "2": {
+    "description": "半自动：轻量+常见安全 Bash 免确认（含 Windows 常用命令）。⚠️ Bash(powershell *) 可执行等效破坏性操作（Remove-Item/Stop-Process/Set-ItemProperty），详见 SKILL.md 安全提醒。",
+    "permissions": {
+      "allow": [
+        "Read",
+        "Glob",
+        "Grep",
+        "Edit",
+        "Write",
+        "WebFetch",
+        "WebSearch",
+        "NotebookEdit",
+        "Agent",
+        "Bash(git *)",
+        "Bash(ls *)",
+        "Bash(dir *)",
+        "Bash(find *)",
+        "Bash(mkdir *)",
+        "Bash(cp *)",
+        "Bash(mv *)",
+        "Bash(cat *)",
+        "Bash(bat *)",
+        "Bash(less *)",
+        "Bash(more *)",
+        "Bash(head *)",
+        "Bash(tail *)",
+        "Bash(grep *)",
+        "Bash(sort *)",
+        "Bash(wc *)",
+        "Bash(jq *)",
+        "Bash(which *)",
+        "Bash(where *)",
+        "Bash(pwd *)",
+        "Bash(echo *)",
+        "Bash(diff *)",
+        "Bash(tee *)",
+        "Bash(type *)",
+        "Bash(stat *)",
+        "Bash(basename *)",
+        "Bash(dirname *)",
+        "Bash(realpath *)",
+        "Bash(cygpath *)",
+        "Bash(cut *)",
+        "Bash(tr *)",
+        "Bash(tar *)",
+        "Bash(unzip *)",
+        "Bash(zip *)",
+        "Bash(python *)",
+        "Bash(pip *)",
+        "Bash(npm *)",
+        "Bash(npx *)",
+        "Bash(node *)",
+        "Bash(curl *)",
+        "Bash(gh *)",
+        "Bash(docker *)",
+        "Bash(chmod *)",
+        "Bash(make *)",
+        "Bash(cargo *)",
+        "Bash(go *)",
+        "Bash(gradle *)",
+        "Bash(tasklist *)",
+        "Bash(ps *)",
+        "Bash(hostname *)",
+        "Bash(uname *)",
+        "Bash(systeminfo *)",
+        "Bash(sha256sum *)",
+        "Bash(md5sum *)",
+        "Bash(winget *)",
+        "Bash(powershell *)",
+        "Bash(dotnet *)"
+      ]
+    },
+    "securityNote": "L2 已移除 v1 中的 Bash(claude *) 和 Bash(codex *) —— 这两个是 LLM 代理入口，可通过嵌套调用绕过破坏性命令拦截。Bash(powershell *) 保留但需注意：PowerShell 可执行 Remove-Item（等效 rm）、Stop-Process（等效 taskkill）、Set-ItemProperty（等效 reg）等破坏性操作。Windows 用户如需严格文件保护，请使用 L1 并手动添加安全的 PowerShell 命令子集。"
+  },
+  "3": {
+    "description": "全自动：一切权限开放，零弹窗。⚠️ 破坏性命令（rm/del/push --force/taskkill/format 等）也不再有任何确认拦截。",
+    "permissions": {
+      "allow": [
+        "Bash(*)",
+        "Edit",
+        "Write",
+        "Read",
+        "Glob",
+        "Grep",
+        "WebFetch",
+        "WebSearch",
+        "NotebookEdit",
+        "Agent",
+        "MCP(*)"
+      ]
+    }
+  }
+}

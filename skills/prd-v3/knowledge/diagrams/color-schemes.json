@@ -1,0 +1,73 @@
+{
+  "default": {
+    "name": "DataAgent 经典配色",
+    "source": "prd-v3 DataAgent 架构图历史",
+    "layers": {
+      "cognitive": { "bg": "#ede9fe", "border": "#8b5cf6", "label": "认知层" },
+      "execution": { "bg": "#dbeafe", "border": "#3b82f6", "label": "执行层" },
+      "reasoning": { "bg": "#ffedd5", "border": "#f97316", "label": "推理层" },
+      "delivery": { "bg": "#d1fae5", "border": "#10b981", "label": "交付层" },
+      "storage": { "bg": "#f3f4f6", "border": "#6b7280", "label": "存储层" },
+      "checkpoint": { "bg": "#fee2e2", "border": "#ef4444", "label": "检查点" },
+      "user": { "bg": "#cffafe", "border": "#06b6d4", "label": "用户入口" }
+    },
+    "shapes": {
+      "start_end": "circle",
+      "process": "rectangle",
+      "decision": "rhombus",
+      "subprocess": "rounded_rectangle"
+    }
+  },
+  "prd_standard_3layer": {
+    "name": "PRD 标准3层架构配色",
+    "source": "PRD 全套附图规范手册 v1.0",
+    "description": "适配信贷 AI 回捞产品的3层架构标准配色",
+    "layers": {
+      "application": { "bg": "#d1fae5", "border": "#10b981", "label": "应用层（用户交互层）", "description": "借款申请入口、智能问答、回捞对话、申请/加购等前端功能" },
+      "capability_platform": { "bg": "#fef3c7", "border": "#f59e0b", "label": "能力中台层", "description": "AI 语义能力、风控决策、召回匹配、话术生成等 AI/业务能力" },
+      "data_transaction": { "bg": "#ede9fe", "border": "#8b5cf6", "label": "数据 & 交易底层", "description": "用户库、风控 SKU 库、订单系统、放款结算系统、底层数据源" }
+    },
+    "shapes": {
+      "start_end": "circle",
+      "process": "rectangle",
+      "decision": "rhombus",
+      "subprocess": "rounded_rectangle"
+    }
+  },
+  "prd_standard_5layer": {
+    "name": "PRD 标准5层架构配色",
+    "source": "PRD 全套附图规范手册 v1.0",
+    "description": "大型系统的5层扩展架构配色",
+    "layers": {
+      "channel": { "bg": "#e0f2fe", "border": "#0284c7", "label": "渠道接入层", "description": "企微、米霍克平台、APP等多渠道接入" },
+      "application": { "bg": "#d1fae5", "border": "#10b981", "label": "应用层", "description": "用户可见前端功能" },
+      "capability_platform": { "bg": "#fef3c7", "border": "#f59e0b", "label": "能力中台层", "description": "AI/业务能力" },
+      "data": { "bg": "#ede9fe", "border": "#8b5cf6", "label": "数据层", "description": "数据存储与计算" },
+      "infrastructure": { "bg": "#f3f4f6", "border": "#6b7280", "label": "基础设施层", "description": "服务器、容器、运维" }
+    }
+  },
+  "flowchart_symbols": {
+    "name": "业务流程图标准符号配色",
+    "source": "PRD 全套附图规范手册 v1.0（国标通用流程图符号）",
+    "symbols": {
+      "start_end": { "bg": "#d5e8d4", "border": "#82b366", "shape": "rounded_rectangle_or_circle", "label": "开始/结束节点" },
+      "process_step": { "bg": "#dae8fc", "border": "#6c8ebf", "shape": "rectangle", "label": "业务操作步骤" },
+      "decision": { "bg": "#fff2cc", "border": "#d6b656", "shape": "rhombus", "label": "判断分支节点" },
+      "reject_end": { "bg": "#f8cecc", "border": "#b85450", "shape": "rounded_rectangle", "label": "拒绝/失败终点" },
+      "v2_new_feature": { "bg": "#fed7aa", "border": "#f97316", "shape": "same_as_parent", "label": "二期新增需求（橙色标注）" },
+      "existing_feature": { "bg": "#e2e8f0", "border": "#94a3b8", "shape": "same_as_parent", "label": "存量需求（浅色标注）" }
+    }
+  },
+  "industry_variants": {
+    "risk-control": {
+      "name": "风控配色",
+      "layers": {
+        "decision_engine": { "bg": "#fee2e2", "border": "#dc2626", "label": "决策引擎" },
+        "agent_platform": { "bg": "#dbeafe", "border": "#2563eb", "label": "Agent平台" },
+        "data_platform": { "bg": "#f3f4f6", "border": "#4b5563", "label": "数据平台" },
+        "model_platform": { "bg": "#ffedd5", "border": "#d97706", "label": "模型平台" },
+        "frontend": { "bg": "#d1fae5", "border": "#059669", "label": "前端" }
+      }
+    }
+  }
+}

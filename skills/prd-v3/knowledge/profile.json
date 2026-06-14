@@ -1,0 +1,21 @@
+{
+  "user_preferences": {
+    "preferred_mode": null,
+    "preferred_industry": null,
+    "preferred_diagram_complexity": null,
+    "learning_style": "text_input"
+  },
+  "usage_statistics": {
+    "total_generations": 0,
+    "mode_distribution": {
+      "complete": 0,
+      "lightweight": 0
+    },
+    "industry_distribution": {
+      "generic": 0,
+      "risk-control": 0
+    },
+    "last_used_template": null,
+    "last_used_date": null
+  }
+}

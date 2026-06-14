@@ -1,0 +1,20 @@
+{
+  "version": "2.0",
+  "description": "每台机器复制本文件为 sync-config.json。sync-config.json 不提交 git。",
+  "machine": "给这台机起个名字，方便日志区分",
+
+  "claude_home": "~/.claude",
+
+  "items": [
+    "CLAUDE.md",
+    "MEMORY.md",
+    "agents/",
+    "agent-knowledge/",
+    "commands/",
+    "memory/"
+  ],
+
+  "skills": {
+    "exclude": ["_archive/", "_archived/"]
+  }
+}

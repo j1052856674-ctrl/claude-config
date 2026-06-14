@@ -1,0 +1,37 @@
+{
+  "industry": "risk-control",
+  "knowledge_files": [
+    {
+      "id": "agent-patterns",
+      "name": "Agent对话模式",
+      "file_path": "industry/risk-control/agent-patterns.md",
+      "tags": ["Agent", "对话", "脚本", "催收", "回收"],
+      "applicable_projects": ["Agent-type", "Recovery-type"],
+      "usage_count": 0
+    },
+    {
+      "id": "common-modules",
+      "name": "风控通用模块库",
+      "file_path": "industry/risk-control/common-modules.md",
+      "tags": ["模块", "决策引擎", "特征", "规则", "评估"],
+      "applicable_projects": ["Agent-type", "Rule-type", "Data-type"],
+      "usage_count": 0
+    },
+    {
+      "id": "field-examples",
+      "name": "数据字段示例",
+      "file_path": "industry/risk-control/field-examples.md",
+      "tags": ["字段", "特征", "宽表", "数据源", "SQL"],
+      "applicable_projects": ["Data-type", "Feature-type"],
+      "usage_count": 0
+    },
+    {
+      "id": "security-standards",
+      "name": "安全合规标准",
+      "file_path": "industry/risk-control/security-standards.md",
+      "tags": ["安全", "脱敏", "权限", "审计", "合规"],
+      "applicable_projects": ["all-risk-control"],
+      "usage_count": 0
+    }
+  ]
+}

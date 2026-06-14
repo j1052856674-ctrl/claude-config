@@ -1,0 +1,441 @@
+{
+  "_meta": {
+    "version": "3.0-draft",
+    "description": "deep-research v3 权威数据源分层配置。新增：中文UGC平台、消费/医疗/金融等领域、按需源路由匹配引擎。",
+    "principle": "L1优先→L2补充→L3交叉验证。按研究问题领域自动匹配源，而非全量轰炸。",
+    "search_strategy": "source_routing — 先判定领域 → 匹配源清单 → 限定源内搜索 → 交叉验证"
+  },
+
+  "source_routing": {
+    "_note": "按研究问题的领域+语言+深度自动匹配源策略。非每次都全源轰炸。",
+    "rules": [
+      {
+        "when": { "domain": "tech_framework", "lang": "any" },
+        "sources": ["github", "pypi", "npm", "stackoverflow", "zhihu(tech)", "juejin", "csdn", "hackernews", "reddit(programming)"],
+        "max_sources": 5,
+        "note": "技术选型：开源数据为主，中文社区为辅"
+      },
+      {
+        "when": { "domain": "academic_research", "lang": "any" },
+        "sources": ["arxiv", "semantic_scholar", "paperswithcode", "google_scholar", "zhihu(academic)"],
+        "max_sources": 5,
+        "note": "学术：预印本+引用图，中文场景追加知乎学术圈"
+      },
+      {
+        "when": { "domain": "market_industry", "lang": "zh" },
+        "sources": ["stats_gov_cn", "36kr", "huxiu", "cbinsights", "crunchbase", "zhihu(business)", "linkedin", "maimai"],
+        "max_sources": 6,
+        "note": "中文市场分析：中国官方数据+科技媒体+职场平台"
+      },
+      {
+        "when": { "domain": "market_industry", "lang": "en" },
+        "sources": ["sec_edgar", "worldbank", "gartner", "statista", "mckinsey", "bloomberg", "reuters"],
+        "max_sources": 5,
+        "note": "英文市场分析：财报+国际组织+咨询公司"
+      },
+      {
+        "when": { "domain": "consumer_product", "lang": "zh" },
+        "sources": ["xiaohongshu", "zhihu(shopping)", "douban", "bilibili(review)", "weibo", "amazon_cn", "jd"],
+        "max_sources": 5,
+        "note": "消费决策：UGC评测+电商评价"
+      },
+      {
+        "when": { "domain": "consumer_product", "lang": "en" },
+        "sources": ["reddit", "youtube(review)", "amazon", "trustpilot", "twitter", "producthunt"],
+        "max_sources": 5,
+        "note": "消费决策：Reddit+YouTube+电商"
+      },
+      {
+        "when": { "domain": "career_job", "lang": "zh" },
+        "sources": ["maimai", "zhihu(career)", "linkedin", "lagou", "boss_zhipin"],
+        "max_sources": 4,
+        "note": "职场调研：脉脉+知乎+招聘平台"
+      },
+      {
+        "when": { "domain": "healthcare", "lang": "any" },
+        "sources": ["pubmed", "fda", "who", "cochrane", "clinicaltrials"],
+        "max_sources": 4,
+        "note": "医疗健康：仅权威医学源，禁用UGC"
+      },
+      {
+        "when": { "domain": "finance_investment", "lang": "any" },
+        "sources": ["yahoo_finance", "sec_edgar", "fred", "bloomberg", "reuters"],
+        "max_sources": 4,
+        "note": "金融投资：一级市场数据为主"
+      },
+      {
+        "when": { "domain": "tech_trends", "lang": "any" },
+        "sources": ["github_trending", "arxiv", "thoughtworks_radar", "stackoverflow_survey", "stateofjs", "hackernews", "36kr", "zhihu(tech)"],
+        "max_sources": 5,
+        "note": "技术趋势：多源信号汇聚"
+      },
+      {
+        "when": { "domain": "regulation_policy", "lang": "zh" },
+        "sources": ["gov_cn", "pkulaw", "europa", "iapp"],
+        "max_sources": 4,
+        "note": "政策法规：政府源优先，禁用社媒"
+      },
+      {
+        "when": { "domain": "security_vulnerability", "lang": "any" },
+        "sources": ["nvd", "cve", "github_advisories", "exploit_db", "mitre_attack", "snyk"],
+        "max_sources": 5,
+        "note": "安全：仅权威漏洞库"
+      }
+    ],
+    "default_fallback": {
+      "sources": ["wikipedia", "websearch_broad"],
+      "max_sources": 3,
+      "note": "无法匹配领域时：Wikipedia概述 + 泛搜发现"
+    }
+  },
+
+  "domains": {
+    "tech_framework": {
+      "label": "技术框架选型",
+      "keywords": ["框架", "framework", "library", "SDK", "语言", "language", "对比", "comparison", "选型", "替代", "alternative", "开源", "open source"],
+      "sources": {
+        "L1_primary": [
+          { "id": "github", "site": "github.com", "metric": "stars+forks+contributors+release_freq", "access": "playwright", "login_required": false, "note": "代码仓库+star趋势+活跃度" },
+          { "id": "pypi", "site": "pypi.org", "metric": "downloads+releases", "access": "playwright", "login_required": false, "note": "Python包下载量" },
+          { "id": "npm", "site": "npmjs.com", "metric": "weekly_downloads", "access": "playwright", "login_required": false, "note": "JS包下载量" },
+          { "id": "crates_io", "site": "crates.io", "metric": "downloads", "access": "playwright", "login_required": false, "note": "Rust包下载量" },
+          { "id": "dockerhub", "site": "hub.docker.com", "metric": "pulls+stars", "access": "playwright", "login_required": false, "note": "容器镜像使用量" },
+          { "id": "vs_code_marketplace", "site": "marketplace.visualstudio.com", "metric": "installs+rating", "access": "playwright", "login_required": false, "note": "VSCode插件安装量" }
+        ],
+        "L2_authority": [
+          { "id": "stackoverflow", "site": "stackoverflow.com", "metric": "question_count+answer_rate", "access": "playwright+websearch", "login_required": false },
+          { "id": "official_docs", "site": "official_docs", "access": "playwright", "login_required": false, "note": "框架官网文档" },
+          { "id": "zhihu_tech", "site": "zhihu.com", "metric": "赞同+评论+专业认证", "access": "playwright", "login_required": "partial", "note": "中文技术深度讨论（部分需登录）" },
+          { "id": "juejin", "site": "juejin.cn", "metric": "点赞+收藏", "access": "playwright", "login_required": false, "note": "中文开发者社区" },
+          { "id": "csdn", "site": "csdn.net", "metric": "阅读量+评论", "access": "playwright", "login_required": false, "note": "中文最大开发者社区（质量参差，需综合判断）" },
+          { "id": "medium_tech", "site": "medium.com/tag/technology", "metric": "claps+responses", "access": "playwright", "login_required": "partial", "note": "英文技术长文（付费墙限制3篇/月）" }
+        ],
+        "L3_social_proof": [
+          { "id": "hackernews", "site": "news.ycombinator.com", "metric": "points+comments", "access": "playwright+websearch", "login_required": false },
+          { "id": "reddit_programming", "site": "reddit.com/r/programming", "metric": "upvotes+comments", "access": "playwright+websearch", "login_required": false },
+          { "id": "producthunt", "site": "producthunt.com", "metric": "upvotes+reviews", "access": "playwright", "login_required": false },
+          { "id": "bilibili_tech", "site": "bilibili.com", "metric": "播放+弹幕+三连", "access": "playwright", "login_required": false, "note": "技术评测视频（文本提取有限，以标题+简介+评论为主）" },
+          { "id": "twitter_tech", "site": "twitter.com", "metric": "likes+retweets+verified", "access": "playwright+websearch", "login_required": "partial" }
+        ]
+      }
+    },
+
+    "academic_research": {
+      "label": "学术研究现状",
+      "keywords": ["论文", "paper", "研究", "research", "state of the art", "综述", "survey", "SOTA", "文献", "学术", "academic"],
+      "sources": {
+        "L1_primary": [
+          { "id": "arxiv", "site": "arxiv.org", "metric": "citations+recency", "access": "playwright", "login_required": false },
+          { "id": "semantic_scholar", "site": "semanticscholar.org", "metric": "citations+influential_citations", "access": "playwright", "login_required": false },
+          { "id": "paperswithcode", "site": "paperswithcode.com", "metric": "benchmark_rank+stars", "access": "playwright", "login_required": false },
+          { "id": "google_scholar", "site": "scholar.google.com", "metric": "citations", "access": "playwright", "login_required": false, "note": "引用计数（反爬强，需限速）" },
+          { "id": "pubmed", "site": "pubmed.ncbi.nlm.nih.gov", "metric": "citations+journal_IF", "access": "playwright", "login_required": false, "note": "生物医学权威文献库" }
+        ],
+        "L2_authority": [
+          { "id": "openreview", "site": "openreview.net", "metric": "peer_review_score", "access": "playwright", "login_required": false },
+          { "id": "dl_acm", "site": "dl.acm.org", "metric": "citations", "access": "playwright", "login_required": false },
+          { "id": "ieee", "site": "ieeexplore.ieee.org", "metric": "citations", "access": "playwright", "login_required": false },
+          { "id": "zhihu_academic", "site": "zhihu.com", "metric": "赞同+专业认证", "access": "playwright", "login_required": "partial", "note": "知乎学术圈深度解读" },
+          { "id": "researchgate", "site": "researchgate.net", "metric": "citations+reads", "access": "playwright", "login_required": "partial" }
+        ],
+        "L3_social_proof": [
+          { "id": "huggingface_papers", "site": "huggingface.co/papers", "metric": "likes+discussions", "access": "playwright", "login_required": false },
+          { "id": "twitter_academic", "site": "twitter.com", "metric": "retweets+verified", "access": "playwright+websearch", "login_required": "partial" }
+        ]
+      }
+    },
+
+    "market_industry": {
+      "label": "市场/行业分析",
+      "keywords": ["市场", "market", "行业", "industry", "规模", "size", "份额", "share", "趋势", "trend", "营收", "revenue", "增长", "growth", "融资", "funding"],
+      "sources": {
+        "L1_primary": [
+          { "id": "sec_edgar", "site": "sec.gov/edgar", "metric": "revenue+profit", "access": "playwright", "login_required": false, "note": "美国上市公司10-K/10-Q财报" },
+          { "id": "stats_gov_cn", "site": "data.stats.gov.cn", "metric": "official_stat", "access": "playwright", "login_required": false, "note": "中国国家统计局" },
+          { "id": "worldbank", "site": "data.worldbank.org", "metric": "official_stat", "access": "playwright", "login_required": false },
+          { "id": "census", "site": "census.gov", "metric": "official_stat", "access": "playwright", "login_required": false },
+          { "id": "fred", "site": "fred.stlouisfed.org", "metric": "economic_data", "access": "playwright", "login_required": false, "note": "美联储经济数据库" }
+        ],
+        "L2_authority": [
+          { "id": "gartner", "site": "gartner.com", "metric": "magic_quadrant", "access": "playwright", "login_required": "partial", "note": "IT魔力象限（部分付费）" },
+          { "id": "statista", "site": "statista.com", "metric": "statistic", "access": "playwright", "login_required": "partial", "note": "统计数据（部分付费）" },
+          { "id": "mckinsey", "site": "mckinsey.com", "metric": "report", "access": "playwright", "login_required": false },
+          { "id": "crunchbase", "site": "crunchbase.com", "metric": "funding+employees", "access": "playwright", "login_required": "partial" },
+          { "id": "cbinsights", "site": "cbinsights.com", "metric": "market_map", "access": "playwright", "login_required": "partial" },
+          { "id": "36kr", "site": "36kr.com", "metric": "article_depth+author_cred", "access": "playwright", "login_required": false, "note": "中文科技商业媒体" },
+          { "id": "huxiu", "site": "huxiu.com", "metric": "article_depth", "access": "playwright", "login_required": false, "note": "中文科技商业分析" },
+          { "id": "bloomberg", "site": "bloomberg.com", "metric": "news+data", "access": "playwright", "login_required": "partial" },
+          { "id": "reuters", "site": "reuters.com", "metric": "news", "access": "playwright", "login_required": false }
+        ],
+        "L3_social_proof": [
+          { "id": "linkedin_company", "site": "linkedin.com", "metric": "employee_count+growth", "access": "playwright", "login_required": "partial" },
+          { "id": "maimai", "site": "maimai.cn", "metric": "员工评价+薪资", "access": "playwright", "login_required": true, "note": "中文职场社交（强登录限制）" },
+          { "id": "glassdoor", "site": "glassdoor.com", "metric": "reviews+salary", "access": "playwright", "login_required": "partial" }
+        ]
+      }
+    },
+
+    "consumer_product": {
+      "label": "消费产品调研",
+      "keywords": ["产品", "product", "买东西", "购买", "推荐", "recommend", "测评", "review", "哪个好", "best", "值得买", "性价比"],
+      "sources": {
+        "L1_primary": [
+          { "id": "official_product_page", "site": "official_product_page", "access": "playwright", "login_required": false, "note": "产品官网规格页" },
+          { "id": "amazon", "site": "amazon.com", "metric": "rating+review_count", "access": "playwright", "login_required": false, "note": "亚马逊评价+价格历史" },
+          { "id": "amazon_cn", "site": "amazon.cn", "metric": "rating+review_count", "access": "playwright", "login_required": false },
+          { "id": "jd", "site": "jd.com", "metric": "好评率+评价数", "access": "playwright", "login_required": false, "note": "京东商品评价" }
+        ],
+        "L2_authority": [
+          { "id": "sspai", "site": "sspai.com", "metric": "收藏+评论", "access": "playwright", "login_required": false, "note": "少数派：数字产品深度评测" },
+          { "id": "rtings", "site": "rtings.com", "metric": "test_score", "access": "playwright", "login_required": false, "note": "显示器/电视/耳机专业评测" },
+          { "id": "dxomark", "site": "dxomark.com", "metric": "score", "access": "playwright", "login_required": false, "note": "手机相机/音频专业评分" },
+          { "id": "g2", "site": "g2.com", "metric": "rating+review_count", "access": "playwright", "login_required": false, "note": "B2B软件评价" },
+          { "id": "trustpilot", "site": "trustpilot.com", "metric": "rating+review_count", "access": "playwright", "login_required": false, "note": "消费者评价平台" }
+        ],
+        "L3_social_proof": [
+          { "id": "xiaohongshu", "site": "xiaohongshu.com", "metric": "点赞+收藏+评论", "access": "playwright", "login_required": true, "note": "小红书：真实消费体验+种草（强登录+强反爬）" },
+          { "id": "zhihu_shopping", "site": "zhihu.com", "metric": "赞同+评论", "access": "playwright", "login_required": "partial", "note": "知乎购物决策讨论" },
+          { "id": "douban", "site": "douban.com", "metric": "评分+评论数", "access": "playwright", "login_required": false, "note": "豆瓣：图书/电影/音乐评分" },
+          { "id": "bilibili_review", "site": "bilibili.com", "metric": "播放+弹幕+三连", "access": "playwright", "login_required": false, "note": "B站开箱评测视频（文本标题+评论提取）" },
+          { "id": "weibo", "site": "weibo.com", "metric": "转发+评论+点赞", "access": "playwright", "login_required": "partial", "note": "微博产品口碑（搜索话题页可公开访问）" },
+          { "id": "reddit_reviews", "site": "reddit.com", "metric": "upvotes+comments", "access": "playwright+websearch", "login_required": false },
+          { "id": "youtube_review", "site": "youtube.com", "metric": "views+likes", "access": "playwright", "login_required": false, "note": "YouTube评测视频（提取标题+描述+评论）" }
+        ]
+      }
+    },
+
+    "career_job": {
+      "label": "职场/就业调研",
+      "keywords": ["工作", "job", "薪资", "salary", "面试", "interview", "公司", "company", "就业", "career", "入职", "offer", "行业前景"],
+      "sources": {
+        "L1_primary": [
+          { "id": "linkedin", "site": "linkedin.com", "metric": "employee_count+openings", "access": "playwright", "login_required": "partial" },
+          { "id": "boss_zhipin", "site": "zhipin.com", "metric": "薪资范围+JD", "access": "playwright", "login_required": false, "note": "Boss直聘：岗位+薪资数据" },
+          { "id": "lagou", "site": "lagou.com", "metric": "薪资+JD", "access": "playwright", "login_required": false, "note": "拉勾：互联网岗位" },
+          { "id": "indeed", "site": "indeed.com", "metric": "salary+postings", "access": "playwright", "login_required": false }
+        ],
+        "L2_authority": [
+          { "id": "maimai", "site": "maimai.cn", "metric": "员工评价+薪资爆料", "access": "playwright", "login_required": true, "note": "脉脉：中文职场社交（强登录+匿名可信度注意）" },
+          { "id": "glassdoor", "site": "glassdoor.com", "metric": "reviews+salary", "access": "playwright", "login_required": "partial" },
+          { "id": "levels_fyi", "site": "levels.fyi", "metric": "salary_bands", "access": "playwright", "login_required": false, "note": "科技公司薪资对比" },
+          { "id": "zhihu_career", "site": "zhihu.com", "metric": "赞同+评论", "access": "playwright", "login_required": "partial", "note": "知乎职场/行业讨论" }
+        ],
+        "L3_social_proof": [
+          { "id": "reddit_cscareer", "site": "reddit.com/r/cscareerquestions", "metric": "upvotes", "access": "playwright+websearch", "login_required": false },
+          { "id": "xiaohongshu_career", "site": "xiaohongshu.com", "metric": "点赞+收藏", "access": "playwright", "login_required": true, "note": "小红书职场分享（强登录）" }
+        ]
+      }
+    },
+
+    "healthcare_medical": {
+      "label": "医疗健康",
+      "keywords": ["药物", "drug", "疾病", "disease", "治疗", "treatment", "临床", "clinical", "健康", "health", "症状", "symptom", "疫苗", "vaccine"],
+      "_warning": "⚠️ 医疗领域仅限权威医学源，禁用UGC/社媒/论坛作为主要依据",
+      "sources": {
+        "L1_primary": [
+          { "id": "pubmed", "site": "pubmed.ncbi.nlm.nih.gov", "metric": "citations+journal_IF", "access": "playwright", "login_required": false, "note": "生物医学权威文献库" },
+          { "id": "fda", "site": "fda.gov", "metric": "approval+warning", "access": "playwright", "login_required": false, "note": "FDA药品审批+安全警告" },
+          { "id": "who", "site": "who.int", "metric": "guideline+stat", "access": "playwright", "login_required": false, "note": "WHO指南+全球卫生数据" },
+          { "id": "cochrane", "site": "cochrane.org", "metric": "systematic_review", "access": "playwright", "login_required": false, "note": "循证医学系统综述" },
+          { "id": "clinicaltrials", "site": "clinicaltrials.gov", "metric": "phase+results", "access": "playwright", "login_required": false, "note": "临床试验注册库" }
+        ],
+        "L2_authority": [
+          { "id": "mayo_clinic", "site": "mayoclinic.org", "metric": "expert_review", "access": "playwright", "login_required": false },
+          { "id": "uptodate", "site": "uptodate.com", "metric": "clinical_evidence", "access": "playwright", "login_required": true, "note": "临床决策支持（付费）" },
+          { "id": "msd_manual", "site": "msdmanuals.com", "metric": "medical_reference", "access": "playwright", "login_required": false, "note": "默沙东诊疗手册" }
+        ],
+        "L3_social_proof": []
+      }
+    },
+
+    "finance_investment": {
+      "label": "金融投资",
+      "keywords": ["股票", "stock", "投资", "investment", "基金", "fund", "ETF", "债券", "bond", "加密货币", "crypto", "IPO", "财报", "earnings"],
+      "sources": {
+        "L1_primary": [
+          { "id": "sec_edgar", "site": "sec.gov/edgar", "metric": "10K_10Q", "access": "playwright", "login_required": false },
+          { "id": "yahoo_finance", "site": "finance.yahoo.com", "metric": "price+volume+financials", "access": "playwright", "login_required": false },
+          { "id": "fred", "site": "fred.stlouisfed.org", "metric": "economic_indicator", "access": "playwright", "login_required": false },
+          { "id": "coingecko", "site": "coingecko.com", "metric": "price+volume+marketcap", "access": "playwright", "login_required": false, "note": "加密货币市场数据" }
+        ],
+        "L2_authority": [
+          { "id": "bloomberg", "site": "bloomberg.com", "metric": "news+data", "access": "playwright", "login_required": "partial" },
+          { "id": "reuters", "site": "reuters.com", "metric": "news", "access": "playwright", "login_required": false },
+          { "id": "morningstar", "site": "morningstar.com", "metric": "fund_rating", "access": "playwright", "login_required": "partial" }
+        ],
+        "L3_social_proof": [
+          { "id": "reddit_investing", "site": "reddit.com/r/investing", "metric": "upvotes", "access": "playwright+websearch", "login_required": false, "note": "仅作情绪指标参考" },
+          { "id": "xueqiu", "site": "xueqiu.com", "metric": "关注+讨论", "access": "playwright", "login_required": "partial", "note": "雪球：中文投资社区" }
+        ]
+      }
+    },
+
+    "tech_trends": {
+      "label": "技术趋势",
+      "keywords": ["趋势", "trend", "发展", "evolution", "未来", "future", "格局", "landscape", "生态", "ecosystem", "演进", "roadmap"],
+      "sources": {
+        "L1_primary": [
+          { "id": "github_trending", "site": "github.com/trending", "metric": "stars_growth", "access": "playwright", "login_required": false },
+          { "id": "arxiv", "site": "arxiv.org", "metric": "paper_volume+velocity", "access": "playwright", "login_required": false },
+          { "id": "stackoverflow_tags", "site": "stackoverflow.com/tags", "metric": "question_volume_trend", "access": "playwright", "login_required": false }
+        ],
+        "L2_authority": [
+          { "id": "thoughtworks_radar", "site": "thoughtworks.com/radar", "metric": "adoption_ring", "access": "playwright", "login_required": false },
+          { "id": "stateofjs", "site": "stateofjs.com", "metric": "usage+retention", "access": "playwright", "login_required": false },
+          { "id": "stackoverflow_survey", "site": "survey.stackoverflow.co", "metric": "usage_share", "access": "playwright", "login_required": false },
+          { "id": "36kr", "site": "36kr.com", "metric": "article_signal", "access": "playwright", "login_required": false, "note": "中文科技趋势" }
+        ],
+        "L3_social_proof": [
+          { "id": "hackernews", "site": "news.ycombinator.com", "metric": "points+comments", "access": "playwright+websearch", "login_required": false },
+          { "id": "reddit_programming", "site": "reddit.com/r/programming", "metric": "upvotes+discussion_depth", "access": "playwright+websearch", "login_required": false },
+          { "id": "zhihu_tech", "site": "zhihu.com", "metric": "赞同+关注趋势", "access": "playwright", "login_required": "partial" }
+        ]
+      }
+    },
+
+    "regulation_policy": {
+      "label": "政策法规",
+      "keywords": ["法规", "regulation", "政策", "policy", "合规", "compliance", "法律", "law", "GDPR", "标准", "standard", "监管"],
+      "_warning": "⚠️ 政策法规仅限政府/官方源和权威法律数据库，禁用社媒/论坛",
+      "sources": {
+        "L1_primary": [
+          { "id": "gov_cn", "site": "gov.cn", "metric": "official", "access": "playwright", "login_required": false },
+          { "id": "europa", "site": "europa.eu", "metric": "official", "access": "playwright", "login_required": false },
+          { "id": "congress", "site": "congress.gov", "metric": "official", "access": "playwright", "login_required": false },
+          { "id": "wto", "site": "wto.org", "metric": "official", "access": "playwright", "login_required": false },
+          { "id": "pkulaw", "site": "pkulaw.com", "metric": "legal_database", "access": "playwright", "login_required": "partial", "note": "北大法宝：中文法律法规数据库" }
+        ],
+        "L2_authority": [
+          { "id": "iapp", "site": "iapp.org", "metric": "expert_analysis", "access": "playwright", "login_required": false, "note": "隐私专业协会" },
+          { "id": "lawfare", "site": "lawfaremedia.org", "metric": "legal_analysis", "access": "playwright", "login_required": false }
+        ],
+        "L3_social_proof": []
+      }
+    },
+
+    "security_vulnerability": {
+      "label": "安全漏洞",
+      "keywords": ["漏洞", "vulnerability", "CVE", "安全", "security", "攻击", "attack", "exploit", "补丁", "patch"],
+      "sources": {
+        "L1_primary": [
+          { "id": "nvd", "site": "nvd.nist.gov", "metric": "CVSS", "access": "playwright", "login_required": false },
+          { "id": "cve", "site": "cve.org", "metric": "CVE", "access": "playwright", "login_required": false },
+          { "id": "github_advisories", "site": "github.com/advisories", "metric": "severity", "access": "playwright", "login_required": false }
+        ],
+        "L2_authority": [
+          { "id": "exploit_db", "site": "exploit-db.com", "metric": "verified", "access": "playwright", "login_required": false },
+          { "id": "mitre_attack", "site": "attack.mitre.org", "metric": "technique", "access": "playwright", "login_required": false },
+          { "id": "snyk", "site": "snyk.io", "metric": "vulnerability+fix", "access": "playwright", "login_required": false }
+        ],
+        "L3_social_proof": [
+          { "id": "twitter_security", "site": "twitter.com", "metric": "researcher_verified", "access": "playwright+websearch", "login_required": "partial", "note": "安全研究员一手披露" }
+        ]
+      }
+    },
+
+    "real_estate": {
+      "label": "房地产",
+      "keywords": ["房价", "housing", "楼盘", "real estate", "租房", "rental", "房贷", "mortgage", "地段", "location"],
+      "sources": {
+        "L1_primary": [
+          { "id": "stats_gov_cn", "site": "data.stats.gov.cn", "metric": "housing_index", "access": "playwright", "login_required": false },
+          { "id": "zillow", "site": "zillow.com", "metric": "price_history+estimate", "access": "playwright", "login_required": false, "note": "美国房价+租金数据" },
+          { "id": "beike", "site": "ke.com", "metric": "成交价+挂牌价", "access": "playwright", "login_required": false, "note": "贝壳：中国房价数据" }
+        ],
+        "L2_authority": [
+          { "id": "zhihu_realestate", "site": "zhihu.com", "metric": "赞同+专业认证", "access": "playwright", "login_required": "partial" }
+        ],
+        "L3_social_proof": [
+          { "id": "xiaohongshu_home", "site": "xiaohongshu.com", "metric": "点赞+收藏", "access": "playwright", "login_required": true, "note": "装修/家居体验分享" },
+          { "id": "douban_group", "site": "douban.com/group", "metric": "讨论数", "access": "playwright", "login_required": false, "note": "租房/买房讨论组" }
+        ]
+      }
+    }
+  },
+
+  "cross_cutting_platforms": {
+    "_note": "跨领域的UGC/社媒平台，不作为单一主源，用于多源交叉验证",
+    "chinese": [
+      { "id": "zhihu", "site": "zhihu.com", "value": "专业深度讨论、行业insider视角", "access": "playwright", "login": "partial", "metrics": ["赞同", "评论", "专业认证", "粉丝"], "warning": "部分内容需登录，需交叉验证" },
+      { "id": "xiaohongshu", "site": "xiaohongshu.com", "value": "真实消费体验、生活方式趋势、产品口碑", "access": "playwright", "login": true, "metrics": ["点赞", "收藏", "评论", "分享"], "warning": "强登录+强反爬，图文混合内容难结构化" },
+      { "id": "weibo", "site": "weibo.com", "value": "实时热点、官方公告、公众情绪", "access": "playwright", "login": "partial", "metrics": ["转发", "评论", "点赞", "粉丝"], "warning": "搜索话题页可公开访问，但信息密度低" },
+      { "id": "bilibili", "site": "bilibili.com", "value": "技术教程、产品评测、深度分析视频", "access": "playwright", "login": false, "metrics": ["播放", "弹幕", "点赞", "投币", "收藏"], "warning": "视频内容提取依赖标题+简介+评论，正文不可直接提取" },
+      { "id": "douban", "site": "douban.com", "value": "图书/电影/音乐评分、兴趣社群", "access": "playwright", "login": false, "metrics": ["评分", "评价数", "小组讨论"], "warning": "评分有刷分风险，需综合判断" },
+      { "id": "maimai", "site": "maimai.cn", "value": "公司内幕、薪资爆料、职场口碑", "access": "playwright", "login": true, "metrics": ["员工评价", "薪资范围"], "warning": "强登录限制，匿名信息可信度波动大" },
+      { "id": "36kr", "site": "36kr.com", "value": "科技商业新闻、行业分析", "access": "playwright", "login": false, "metrics": ["阅读量", "评论"], "warning": "创业公司PR内容多，需辨别新闻vs软文" },
+      { "id": "huxiu", "site": "huxiu.com", "value": "深度科技商业分析", "access": "playwright", "login": false, "metrics": ["评论质量"], "warning": "观点性强，需交叉验证" },
+      { "id": "sspai", "site": "sspai.com", "value": "数字产品深度评测", "access": "playwright", "login": false, "metrics": ["收藏", "充电"], "warning": "编辑精选内容，覆盖面有限" },
+      { "id": "juejin", "site": "juejin.cn", "value": "中文开发者技术文章", "access": "playwright", "login": false, "metrics": ["点赞", "收藏", "评论"], "warning": "质量波动大" },
+      { "id": "csdn", "site": "csdn.net", "value": "中文最大开发者社区", "access": "playwright", "login": false, "metrics": ["阅读量", "评论", "收藏"], "warning": "SEO内容多，质量参差，需严格过滤" },
+      { "id": "xueqiu", "site": "xueqiu.com", "value": "中文投资社区", "access": "playwright", "login": "partial", "metrics": ["关注", "讨论"], "warning": "投资建议仅供参考，不构成依据" }
+    ],
+    "international": [
+      { "id": "twitter_x", "site": "twitter.com", "value": "实时行业动态、专家观点、官方公告", "access": "playwright+websearch", "login": "partial", "metrics": ["likes", "retweets", "views", "verified"], "warning": "未登录浏览受限，API限流" },
+      { "id": "reddit", "site": "reddit.com", "value": "垂直社区深度讨论", "access": "playwright+websearch", "login": false, "metrics": ["upvotes", "comments", "awards"], "warning": "匿名性导致信息质量波动" },
+      { "id": "hackernews", "site": "news.ycombinator.com", "value": "技术圈高质量讨论", "access": "playwright+websearch", "login": false, "metrics": ["points", "comments"], "warning": "偏技术创业视角" },
+      { "id": "youtube", "site": "youtube.com", "value": "评测/教程/讲座视频", "access": "playwright", "login": false, "metrics": ["views", "likes", "subscribers"], "warning": "视频正文不可直接提取，依赖标题+描述+评论" },
+      { "id": "medium", "site": "medium.com", "value": "技术/商业长文", "access": "playwright", "login": "partial", "metrics": ["claps", "responses"], "warning": "付费墙限制3篇/月" },
+      { "id": "substack", "site": "substack.com", "value": "行业专家Newsletter", "access": "playwright", "login": "partial", "metrics": ["subscribers", "likes"], "warning": "部分付费订阅" },
+      { "id": "discord", "site": "discord.com", "value": "开发者社群实时讨论", "access": "playwright", "login": "partial", "metrics": ["member_count", "message_volume"], "warning": "需要加入服务器，登录限制" },
+      { "id": "producthunt", "site": "producthunt.com", "value": "新产品发布热度", "access": "playwright", "login": false, "metrics": ["upvotes", "reviews"], "warning": "偏早期产品" },
+      { "id": "trustpilot", "site": "trustpilot.com", "value": "消费者评价聚合", "access": "playwright", "login": false, "metrics": ["rating", "review_count"], "warning": "刷评价风险" },
+      { "id": "goodreads", "site": "goodreads.com", "value": "图书评分和书评", "access": "playwright", "login": false, "metrics": ["rating", "reviews"], "warning": "评分偏差（热门书偏高）" }
+    ]
+  },
+
+  "access_methods": {
+    "playwright": "Playwright MCP 真实浏览器 — JS渲染、站内搜索、结构化提取、反爬对抗",
+    "websearch": "WebSearch API — 仅作snippets发现新来源，不抓正文（WebFetch已退役）",
+    "playwright+websearch": "Playwright抓正文优先；WebSearch作补充发现"
+  },
+
+  "login_strategy": {
+    "_note": "分层接入策略：公开内容优先 → 登录态可选增强 → 用户手动触发",
+    "public_first": "所有标记 login_required: false 或 partial 的源，先抓公开可访问内容",
+    "session_optional": "标记 login_required: true 或 partial 的源，若用户已配置 persistent session 则自动使用，否则仅抓公开内容并标注覆盖度受限",
+    "manual_trigger": "需要高价值登录内容（如脉脉薪资、小红书深度体验）时，提示用户是否启用登录session"
+  },
+
+  "authority_metrics": {
+    "code": [
+      { "metric": "github_stars", "weight": 0.30 },
+      { "metric": "github_forks", "weight": 0.15 },
+      { "metric": "github_contributors", "weight": 0.10 },
+      { "metric": "github_release_frequency", "weight": 0.15 },
+      { "metric": "pypi_downloads", "weight": 0.10 },
+      { "metric": "npm_downloads", "weight": 0.10 },
+      { "metric": "dockerhub_pulls", "weight": 0.10 }
+    ],
+    "research": [
+      { "metric": "citations", "weight": 0.35 },
+      { "metric": "influential_citations", "weight": 0.25 },
+      { "metric": "venue_rank", "weight": 0.20 },
+      { "metric": "recency", "weight": 0.20 }
+    ],
+    "market": [
+      { "metric": "revenue", "weight": 0.30 },
+      { "metric": "market_share_official", "weight": 0.25 },
+      { "metric": "funding_total", "weight": 0.20 },
+      { "metric": "employee_count", "weight": 0.15 },
+      { "metric": "growth_rate", "weight": 0.10 }
+    ],
+    "social_proof": [
+      { "metric": "hn_points", "weight": 0.20, "note": "HackerNews — 技术圈高信号" },
+      { "metric": "producthunt_upvotes", "weight": 0.15 },
+      { "metric": "reddit_upvotes", "weight": 0.15 },
+      { "metric": "zhihu_upvotes", "weight": 0.15, "note": "知乎赞同 — 中文高质量信号" },
+      { "metric": "stackoverflow_reputation", "weight": 0.15 },
+      { "metric": "twitter_verified", "weight": 0.10, "note": "蓝V认证 — 真实身份" },
+      { "metric": "twitter_followers", "weight": 0.05, "note": "粉丝数最低权重" },
+      { "metric": "weibo_followers", "weight": 0.05, "note": "微博粉丝易造假" }
+    ],
+    "consumer": [
+      { "metric": "amazon_rating", "weight": 0.25 },
+      { "metric": "amazon_review_count", "weight": 0.15 },
+      { "metric": "xiaohongshu_saves", "weight": 0.20, "note": "小红书收藏 — 购买意向信号" },
+      { "metric": "xiaohongshu_likes", "weight": 0.10 },
+      { "metric": "bilibili_sanlian", "weight": 0.15, "note": "B站三连（点赞+投币+收藏） — 内容质量信号" },
+      { "metric": "douban_rating", "weight": 0.15 }
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+# archives
+*.zip
+*.tar.gz
+*.7z
+
+# OS
+.DS_Store
+Thumbs.db
+
+# backups
+.backups/
+
+# IDE
+.idea/
+.vscode/
+
+# temp extraction
+claude-config-master-extracted/
+
+# sync — 每台机自己的配置，不提交
+sync-config.json
+
+# Python
+__pycache__/
+*.pyc
+
+# 项目产出 — 本地保留，不提交 GitHub（应放各自独立仓库管理）
+ai-worker-hub/
+prd-output/
+knowledge-hub/
+templates/

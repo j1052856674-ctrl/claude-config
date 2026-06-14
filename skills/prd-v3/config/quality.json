@@ -1,0 +1,39 @@
+{
+  "quality_assessment": {
+    "metrics": {
+      "completeness": {
+        "weight": 0.3,
+        "required_sections_complete": 6,
+        "required_sections_lightweight": 4
+      },
+      "clarity": {
+        "weight": 0.3,
+        "vague_words": ["大概", "可能", "尽量", "适当", "若干", "一些", "相关", "必要"],
+        "placeholder_markers": ["[待确认]", "[TBD]", "[TODO]", "[需补充]"]
+      },
+      "structure": {
+        "weight": 0.2,
+        "heading_depth_rules": "max 3 levels",
+        "mermaid_syntax_check": true
+      },
+      "professionalism": {
+        "weight": 0.2,
+        "industry_terms": {
+          "risk-control": ["决策引擎", "特征工程", "规则配置", "策略挖掘", "效果评估", "灰度发布", "数据脱敏", "权限隔离"],
+          "generic": ["交互规格", "灰度策略", "回滚方案", "异常处理"]
+        },
+        "exception_coverage_min": 3
+      }
+    },
+    "scoring": {
+      "excellent": 90,
+      "good": 80,
+      "passing": 70
+    },
+    "checklist_decision": {
+      "all_pass": "✅ 通过，可直接交付",
+      "one_two_warn": "⚠️ 条件通过，补充warn项后可交付",
+      "three_plus_fail": "❌ 不通过，需修改后重新检查"
+    }
+  }
+}

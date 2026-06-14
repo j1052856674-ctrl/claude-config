@@ -1,0 +1,34 @@
+{
+  "recommendation": {
+    "mode_keywords": {
+      "exploration": ["探索", "思考", "必要性", "可行性", "值不值得", "要不要做"],
+      "lightweight": ["MVP", "内部工具", "快速迭代", "简单", "试点", "轻量"],
+      "complete": ["正式", "生产", "核心系统", "复杂", "全量", "详细规格"]
+    },
+    "industry_keywords": {
+      "risk-control": { "keywords": ["风控", "决策引擎", "策略", "规则", "特征", "催收", "审批", "放款", "信控"], "status": "active" },
+      "finance": { "keywords": ["金融", "信贷", "贷款", "征信", "还款", "授信"], "status": "planned" },
+      "data-intelligence": { "keywords": ["数据", "分析", "报表", "BI", "数据平台", "智能查询"], "status": "planned" },
+      "ai-agent": { "keywords": ["智能体", "Agent", "对话", "AI助手", "聊天"], "status": "planned" }
+    },
+    "matching_logic": "contain_any",
+    "keyword_priority": ["exploration", "lightweight", "complete"],
+    "keyword_priority_rule": "当多个模式关键词同时匹配时，按 keyword_priority 数组顺序取第一个匹配项。用户明确指定的模式优先级高于关键词匹配。",
+    "fallback_mode": "complete",
+    "fallback_industry": "generic"
+  },
+  "template_routing": {
+    "exploration": {
+      "generic": "templates/exploration/standard.md",
+      "ai-agent": "templates/exploration/ai-agent.md"
+    },
+    "lightweight": {
+      "generic": "templates/lightweight/standard.md",
+      "risk-control": "templates/lightweight/risk-control.md"
+    },
+    "complete": {
+      "generic": "templates/complete/standard.md",
+      "risk-control": "templates/complete/risk-control.md"
+    }
+  }
+}
