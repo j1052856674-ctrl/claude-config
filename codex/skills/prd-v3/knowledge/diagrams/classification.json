@@ -1,0 +1,28 @@
+{
+  "classification_rules": {
+    "scoring_factors": {
+      "keyword_match": 0.4,
+      "pattern_match": 0.4,
+      "structural_features": 0.2
+    },
+    "complexity_rules": {
+      "simple": { "max_nodes": 10, "max_edges": 15 },
+      "medium": { "max_nodes": 25, "max_edges": 40 },
+      "complex": { "min_nodes": 20 }
+    },
+    "type_keywords": {
+      "system-architecture": ["架构", "系统", "模块", "分层", "组件", "平台", "引擎", "服务", "微服务", "三层架构", "五层架构", "应用层", "中台", "底层", "数据层"],
+      "business-flow": ["流程", "业务", "步骤", "审批", "流转", "操作", "处理", "工作流", "链路", "进件", "审核", "回捞", "放款"],
+      "bpmn-swimlane": ["泳道", "跨系统", "跨角色", "协作", "接口", "分工", "对接", "交互", "BPMN", "竖泳道", "系统分工"],
+      "product-prototype": ["原型", "页面", "交互", "界面", "UI", "前端", "按钮", "输入框", "弹窗", "跳转", "Axure", "墨刀"],
+      "data-structure": ["数据", "存储", "数据库", "表", "字段", "ER", "实体", "关系", "数据结构", "字段关联"],
+      "api-interface": ["接口", "API", "出入参", "请求", "响应", "对接", "接口清单", "调用"],
+      "interaction-sequence": ["交互", "调用", "请求", "响应", "通信", "时序", "接口", "API"],
+      "deployment": ["部署", "服务器", "环境", "容器", "集群", "运维", "基础设施"]
+    },
+    "variant_keywords": {
+      "architecture_report_version": ["汇报", "业务", "无连线", "区块划分", "大盘"],
+      "architecture_technical_version": ["落地", "技术", "连线", "依赖", "接口调用", "数据流向"]
+    }
+  }
+}

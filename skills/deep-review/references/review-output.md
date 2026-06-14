@@ -225,9 +225,9 @@ Phase 4 输出两层：
 
 ---
 
-## 评审资产沉淀（强制写入 `.claude/memory/`）
+## 评审资产沉淀（强制写入 `memory-hub/`）
 
-> 评审完成后，将以下结构化内容写入项目本地 `.claude/memory/`。
+> 评审完成后，将以下结构化内容写入项目本地 `memory-hub/`。
 > 文件名建议：`review-{YYYYMMDD}-{target-name}.md`
 
 ```markdown
@@ -270,13 +270,13 @@ metadata:
 
 ## 与 knowledge-base Skill 的协作边界
 
-1. **deep-review 写入 `.claude/memory/`（项目本地）**
-   - 评审资产沉淀仅在项目本地 `.claude/memory/` 中创建
+1. **deep-review 写入 `memory-hub/`（项目本地）**
+   - 评审资产沉淀仅在项目本地 `memory-hub/` 中创建
    - 沉淀内容使用标准 memory frontmatter，必须包含 `bridge: true`
 
-2. **knowledge-base 后续拉取 → dedup → 写入 `03_Knowledge/记忆中枢/`**
-   - 由 knowledge-base Skill 负责定期扫描各项目 `.claude/memory/` 中 `bridge: true` 的文件
-   - 执行去重（dedup）和结构化后，写入 `03_Knowledge/记忆中枢/` 对应分类目录
+2. **knowledge-base 后续拉取 → dedup → 写入 `memory-hub/`**
+   - 由 knowledge-base Skill 负责定期扫描各项目 `memory-hub/` 中 `bridge: true` 的文件
+   - 执行去重（dedup）和结构化后，写入 `memory-hub/` 对应分类目录
 
 3. **deep-review 不写 `03_Knowledge/`**
    - deep-review 只负责项目本地评审和资产沉淀
@@ -305,7 +305,7 @@ metadata:
 **决策建议**：[一句话，可操作]
 
 → 完整报告: `path/to/review-report.md`
-→ 评审资产: `path/to/.claude/memory/review-*.md`
+→ 评审资产: `memory-hub/review-*.md`
 ```
 
 ### 摘要卡片纪律

@@ -221,8 +221,8 @@ agent-builder SKILL.md          ← 创建流程（Step 1-6）+ 三层诊断
     ↓ 引用
 references/agent-prompt-design-spec.md  ← 本文件：Prompt 写什么、怎么写
     ↓ 理论来源
-~/.claude/memory/decisions/agent-design-guide.md  ← Agent/Skill 架构、双轨制、创建流程
-03_Knowledge/记忆中枢/Skill设计/agent-prompt-self-sufficiency-test.md  ← 自给自足测试理论基础
+E:/claude-config-master/memory-hub/decisions/agent-design-guide.md  ← Agent/Skill 架构、双轨制、创建流程
+memory-hub/Skill设计/agent-prompt-self-sufficiency-test.md  ← 自给自足测试理论基础
 ```
 
 **修改规则**：

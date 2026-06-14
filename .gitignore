@@ -20,6 +20,9 @@ claude-config-master-extracted/
 # sync — 每台机自己的配置，不提交
 sync-config.json
 
+# Claude/Codex local runtime/config — 不提交本机权限、备份、缓存与运行态
+.claude/
+
 # Python
 __pycache__/
 *.pyc

@@ -1,0 +1,157 @@
+{
+  "recommendation_matrix": {
+    "simple": {
+      "description": "简单产品：功能单一，流程清晰",
+      "recommended": ["3-layer-architecture", "business-flow", "prototype"],
+      "min_diagrams": 2,
+      "max_diagrams": 3
+    },
+    "medium": {
+      "description": "中等产品：多模块协作，有决策分支",
+      "recommended": ["3-layer-architecture", "business-flow", "bpmn-swimlane", "prototype"],
+      "min_diagrams": 3,
+      "max_diagrams": 4
+    },
+    "complex": {
+      "description": "复杂产品：多系统集成，全链路追踪",
+      "recommended": ["5-layer-architecture", "business-flow", "bpmn-swimlane", "prototype", "data-structure", "api-interface"],
+      "min_diagrams": 4,
+      "max_diagrams": 6
+    }
+  },
+  "diagram_types": [
+    {
+      "id": "system-architecture",
+      "name": "产品架构图",
+      "mermaid_type": "flowchart TB + subgraph",
+      "drawio_type": "layered containers",
+      "keywords": ["架构", "系统", "模块", "分层", "组件", "平台", "引擎", "服务", "微服务"],
+      "complexity_indicator": "high",
+      "prd_placement": {
+        "primary": "§1 产品概述 - 产品架构说明（汇报版·无连线）",
+        "secondary": "附录 - 系统对接章节（技术落地版·带连线）"
+      },
+      "variants": {
+        "report_version": {
+          "description": "业务汇报版（无连线，区块划分）",
+          "rules": ["禁止画箭头连线", "同层级按业务域分组", "模块命名统一为业务模块名"]
+        },
+        "technical_version": {
+          "description": "技术落地版（带依赖连线）",
+          "rules": ["实线箭头=上层调用下层", "虚线箭头=底层数据向上回传", "禁止跨层级越级连线"]
+        }
+      }
+    },
+    {
+      "id": "business-flow",
+      "name": "业务流程图",
+      "mermaid_type": "flowchart TD",
+      "drawio_type": "vertical flowchart",
+      "keywords": ["流程", "业务", "步骤", "审批", "流转", "操作", "处理", "工作流"],
+      "complexity_indicator": "medium",
+      "prd_placement": {
+        "primary": "§3 分模块需求 → 各模块业务规则小节"
+      },
+      "rules": [
+        "一个流程图只画一个主业务",
+        "分支标注清晰：每个菱形出口写明分支文案",
+        "异常流程不能遗漏",
+        "不区分角色和系统（由泳道图负责）"
+      ]
+    },
+    {
+      "id": "bpmn-swimlane",
+      "name": "BPMN 泳道流程图",
+      "mermaid_type": "flowchart LR + subgraph（竖泳道）",
+      "drawio_type": "swimlane containers",
+      "keywords": ["泳道", "跨系统", "跨角色", "协作", "接口", "分工", "对接", "交互"],
+      "complexity_indicator": "high",
+      "prd_placement": {
+        "primary": "§4 对接方案 / 接口说明",
+        "secondary": "附录（复杂大业务拆主泳道图 + 子泳道图）"
+      },
+      "rules": [
+        "横向泳道列标注角色/系统名称",
+        "每个步骤框只落在对应责任方泳道内",
+        "跨泳道箭头=跨角色/跨系统接口调用",
+        "步骤纵向自上而下有序排布"
+      ]
+    },
+    {
+      "id": "product-prototype",
+      "name": "产品原型图",
+      "mermaid_type": "不适用（Axure/墨刀）",
+      "drawio_type": "不适用",
+      "keywords": ["原型", "页面", "交互", "界面", "UI", "前端", "按钮", "输入框", "弹窗"],
+      "complexity_indicator": "medium",
+      "prd_placement": {
+        "primary": "§5 页面需求章节"
+      },
+      "rules": [
+        "页面编号规范：模块-页面编号（如 H01）",
+        "交互标注：按钮点击跳转/弹窗",
+        "字段说明：数据来源备注"
+      ]
+    },
+    {
+      "id": "data-structure",
+      "name": "数据结构图（ER 简图）",
+      "mermaid_type": "erDiagram",
+      "drawio_type": "ER diagram",
+      "keywords": ["数据", "存储", "数据库", "表", "字段", "ER", "实体", "关系"],
+      "complexity_indicator": "high",
+      "prd_placement": {
+        "primary": "附录 - 数据设计"
+      },
+      "optional": true,
+      "required_for": ["信贷产品", "AI产品", "复杂数据模型"]
+    },
+    {
+      "id": "api-interface",
+      "name": "简易接口清单图",
+      "mermaid_type": "不适用（表格形式）",
+      "drawio_type": "不适用",
+      "keywords": ["接口", "API", "出入参", "请求", "响应", "对接"],
+      "complexity_indicator": "medium",
+      "prd_placement": {
+        "primary": "§4 接口对接章节"
+      },
+      "optional": true,
+      "required_for": ["信贷产品", "AI产品", "多系统集成"],
+      "format": "接口定义表（接口名称/方向/请求方式/关键参数/返回值/调用时机）"
+    },
+    {
+      "id": "interaction-sequence",
+      "name": "交互时序图",
+      "mermaid_type": "sequenceDiagram",
+      "drawio_type": "sequence diagram",
+      "keywords": ["交互", "调用", "请求", "响应", "通信", "时序"],
+      "complexity_indicator": "medium",
+      "prd_placement": {
+        "primary": "§4 接口对接章节（补充，与泳道图功能类似但侧重消息顺序）"
+      },
+      "optional": true
+    },
+    {
+      "id": "deployment-architecture",
+      "name": "部署架构图",
+      "mermaid_type": "flowchart TD",
+      "drawio_type": "deployment diagram",
+      "keywords": ["部署", "服务器", "环境", "容器", "集群", "运维", "基础设施"],
+      "complexity_indicator": "high",
+      "prd_placement": {
+        "primary": "附录 - 部署设计"
+      },
+      "optional": true
+    }
+  ],
+  "prd_placement_matrix": {
+    "§1_产品概述": ["system-architecture（汇报版）"],
+    "§2_全局业务说明": ["business-flow（全链路）"],
+    "§3_模块需求": ["business-flow（子模块）", "bpmn-swimlane（跨系统）"],
+    "§4_系统对接_接口": ["system-architecture（落地版）", "bpmn-swimlane（全链路）", "api-interface", "interaction-sequence"],
+    "§5_页面交互需求": ["product-prototype"],
+    "附录_数据设计": ["data-structure"],
+    "附录_部署设计": ["deployment-architecture"]
+  }
+}

@@ -63,7 +63,7 @@
 
 31. **承认并修正错误**：被用户纠正后，简要说明根因、修正方式和后续防范点。**禁止掩盖错误或推诿责任。**
 
-32. **踩坑必须沉淀**：任何反复出现的错误模式，必须写入项目 `.claude/memory/` 并标注 `bridge: true`（写入规范见第十四节和 `~/.claude/memory/MEMORY-SPEC.md`）。跨 session 重复犯同类错误属于违规行为。**禁止踩坑后不沉淀经验。**
+32. **踩坑必须沉淀**：任何反复出现的错误模式，必须写入项目本地 `memory-hub/lessons/` 并标注 `bridge: true`（写入规范见项目 `memory-hub/MEMORY-SPEC.md`；若项目尚无 memory-hub，则先创建最小目录和索引）。跨 session 重复犯同类错误属于违规行为。**禁止踩坑后不沉淀经验。**
 
 33. **谁写的谁修**：使用多 Agent 模式时，修复 bug 应 resume 原 Agent 而非新开，验收应 resume 原 tester 而非新开。保留历史上下文使修复更精准。
 
@@ -74,25 +74,25 @@
 
 ## 十、记忆体系
 
-36. **四层记忆架构**：规则层（CLAUDE.md）→ 事实层（MEMORY.md）→ 详情层（项目本地 `.claude/memory/`）→ 中枢层（日常仓库 `03_Knowledge/记忆中枢/`）。规则层定义"必须/禁止"，事实层记录"已知信息/偏好/摘要"，详情层提供完整内容+双链+frontmatter，中枢层供人类审查升级为常青知识。
+36. **三层记忆架构**：项目本地 `memory-hub/` 记录项目事实与状态；Agent runtime roots（`~/.claude/`、`~/.codex/`）只作为适配/缓存/安装目标；长期可复用知识由 memory-bridge 沉淀到 `E:\个人仓库\03_Knowledge\记忆中枢\`。`E:\claude-config-master\memory-hub` 只记录本配置同步项目的协议、迁移状态和决策。
 
-37. **写入优先本地**：踩坑、反馈、项目状态等长期记忆，先写入当前项目 `.claude/memory/`，标注 `bridge: true`。项目内零权限障碍，即时可用。
+37. **写入优先项目本地 hub**：踩坑、反馈、项目状态等长期记忆，先写入当前项目 `memory-hub/` 对应子目录，标注 `bridge: true`。项目内零权限障碍，即时可用。
 
-38. **全局事实层自动生效**：`~/.claude/MEMORY.md` 对所有项目自动可见（零权限），存储一句话摘要和指针。大部分场景读摘要已够用。
+38. **runtime 事实层只作适配**：`~/.claude/MEMORY.md`、`~/.codex` 本地记忆和 legacy `.claude/memory/` 只作为索引、缓存或导入源；等价记录进入项目 `memory-hub/` 或长期知识库后，以新位置为准。
 
-39. **详情层按需读取**：需要完整记忆详情时，按 MEMORY.md 中的指针读取日常仓库 `03_Knowledge/记忆中枢/`（需项目配置 Read 权限）。
+39. **详情层按需读取**：需要完整记忆详情时，优先按项目 `memory-hub/MEMORY.md` 指针读取；跨项目通用经验按长期知识库指针读取。
 
-40. **Bridge 定期沉淀**：`memory-bridge` Skill 从日常仓库项目运行，定期拉取各项目 `bridge: true` 记忆 → dedup → 结构化写入 `03_Knowledge/记忆中枢/` → 更新全局 `MEMORY.md` → 人类审查后升级为常青知识。
+40. **Bridge 定期沉淀**：`memory-bridge` Skill 从各项目 `memory-hub/` 拉取 `bridge: true` 记忆 → 去敏/去重/通用化 → 结构化写入长期知识库 `E:\个人仓库\03_Knowledge\记忆中枢\` → 更新索引 → 人类审查后升级为常青知识。
 
 41. **规则与事实分离**：CLAUDE.md 只记行为约束（违反会造成返工或风险的规则）；MEMORY.md 记事实和偏好（指导决策但不强制）。**禁止在 CLAUDE.md 中写入不属于行为约束的偏好信息。**
 
 ## 十一、代码探索效率
 
-42. **架构图先行（代码项目）**：进入代码项目新对话时，先检查项目 `.claude/memory/` 是否有 `architecture-map` 记忆文件。如果有，优先读取该文件获取代码架构知识，仅在文件缺失或信息不足时才启动探索 Agent。**禁止忽略已有架构图而重新全量探索代码库。**
+42. **架构图先行（代码项目）**：进入代码项目新对话时，先检查项目 `memory-hub/` 是否有 `architecture-map` 或等价架构记忆。如果有，优先读取该文件获取代码架构知识，仅在文件缺失或信息不足时才启动探索 Agent。**禁止忽略已有架构图而重新全量探索代码库。**
 
     **非代码项目（文档工作区/Skill 设计库/PRD 工作区等）**：跳过 architecture-map 检查，优先读取项目 CLAUDE.md 和 SKILL.md 了解项目定位，按项目规则指引定位核心文件。
 
-43. **探索后必更新架构图**：对代码项目完成实质性探索后（读取 5+ 文件、理解模块关系），必须将关键发现更新到项目 `.claude/memory/architecture-map.md`。非代码项目按项目自身规范记录。**禁止完成探索后不更新架构图记忆——这是跨 session 知识传递的核心机制。**
+43. **探索后必更新架构图**：对代码项目完成实质性探索后（读取 5+ 文件、理解模块关系），必须将关键发现更新到项目 `memory-hub/` 中的 architecture-map 或等价架构记忆。非代码项目按项目自身规范记录。**禁止完成探索后不更新架构图记忆——这是跨 session 知识传递的核心机制。**
 
 44. **架构图格式规范**：架构图记忆使用标准 memory frontmatter（name: architecture-map, type: project, bridge: true），正文使用表格 + 简明描述，避免大段代码复制。目标：读完架构图 ≈ 读完 20+ 源文件的关键知识，3k tokens 内获得足够上下文。
 
@@ -101,14 +101,14 @@
 45. **新项目强制启动流程**：首次进入一个项目目录时，必须按以下顺序建立上下文，禁止跳步直接执行：
 
 ```
-Step 1: 读项目 CLAUDE.md → 了解规则、架构、禁止项
-Step 2: 读 .claude/memory/MEMORY.md → 知道有哪些记忆文件
+Step 1: 读项目 CLAUDE.md / AGENTS.md → 了解规则、架构、禁止项
+Step 2: 读项目 memory-hub/MEMORY.md → 知道有哪些记忆文件
 Step 3: 读 architecture-map（或同名架构图记忆） → 掌握项目全貌、文件地图、核心模块
 Step 4: 按架构图中的指引定位核心文件，按需读取
 Step 5: 开始工作 → 先说明目标和路径，再动手
 ```
 
-**此流程对所有项目生效，不仅限于有 architecture-map 的项目。** 如果 `.claude/memory/` 不存在或为空，跳过 Step 2-3，但 Step 1 和 Step 5 仍然强制。非代码项目 Step 3 替换为：按项目 CLAUDE.md 指引定位核心文档/配置/Skill 文件。
+**此流程对所有项目生效，不仅限于有 architecture-map 的项目。** 如果项目 `memory-hub/` 不存在或为空，跳过 Step 2-3，但 Step 1 和 Step 5 仍然强制。legacy `.claude/memory/` 只作为导入源或兼容缓存，不能替代项目本地 `memory-hub/`。非代码项目 Step 3 替换为：按项目 CLAUDE.md / AGENTS.md 指引定位核心文档/配置/Skill 文件。
 
 46. **禁止未建立上下文就行动**：不读项目 CLAUDE.md 就改代码、不读架构图记忆就重新探索、不读配置源文件就调规则——这些行为浪费 token、造成不一致、引入返工风险。**禁止凭训练数据中的通用经验替代实际读取项目文件。**
 
@@ -121,20 +121,20 @@ Step 5: 开始工作 → 先说明目标和路径，再动手
 | 配置常量、规则参数 | `scripts/config.py` 或等价配置模块 | 文档中的参数说明 | ❌ 改文档中的参数说明不改配置模块 |
 | 评分/筛选/匹配逻辑 | `scripts/scorer.py` 或等价核心模块 | 设计文档中的逻辑描述 | ❌ 改设计文档不改核心模块 |
 | Skill/Agent 指令 | 运行层 Skill 文件 | 原型层文档 | ❌ 改了原型层不同步运行层 |
-| 项目记忆 | `.claude/memory/` 中的记忆文件 | 全局 `MEMORY.md` 摘要 | ❌ 只改全局摘要不写项目本地记忆 |
-| Skill 能力归属 | `.claude/memory/decisions/skill-capability-ownership.md` | Skill 自身的 depends_on 声明 | ❌ 改了权威 Skill 不同步更新编排方 |
+| 项目记忆 | 项目本地 `memory-hub/` 中的记忆文件 | `memory-hub/MEMORY.md` 摘要 | ❌ 只改全局摘要不写项目本地记忆 |
+| Skill 能力归属 | `memory-hub/decisions/skill-capability-ownership.md` 或项目声明的能力归属文件 | Skill 自身的 depends_on 声明 | ❌ 改了权威 Skill 不同步更新编排方 |
 
 48. **改规则三步强制流程**：任何涉及规则、配置、逻辑的修改，必须走完三步，禁止跳过任何一步：
 
 ```
 Step A: 改权威源 → 修改权威源文件（config.py / scorer.py / Skill文件 等）
 Step B: 同步摘要 → 更新所有引用该配置的摘要/文档
-Step C: 验证 + 记录 → 跑测试/语法检查/编译 → 更新 .claude/memory/ 记忆
+Step C: 验证 + 记录 → 跑测试/语法检查/编译 → 更新项目 memory-hub/ 记忆
 ```
 
 **禁止**：只改摘要不改权威源（下次改权威源会覆盖摘要）。禁止改完不验证就声称完成。禁止重大改动后不更新记忆。
 
-49. **跨文件引用约定**：任何文件引用其他权威文件的规则时，使用**语义关键词**（如 "supersedes 记忆合并规则"、"bridge 默认值规则"），**禁止使用位置编号**（如 "§56"）。位置编号在权威文件增删规则时全局漂移，引用方静默失效且无检测机制。修改权威文件的人，负有用 `grep` 检查所有引用方并同步更新的责任（写入规范见 `.claude/memory/decisions/cross-file-reference-convention.md`）。
+49. **跨文件引用约定**：任何文件引用其他权威文件的规则时，使用**语义关键词**（如 "supersedes 记忆合并规则"、"bridge 默认值规则"），**禁止使用位置编号**（如 "§56"）。位置编号在权威文件增删规则时全局漂移，引用方静默失效且无检测机制。修改权威文件的人，负有用 `grep` 检查所有引用方并同步更新的责任（写入规范见项目 `memory-hub/` 中的跨文件引用约定记忆）。
 
 50. **禁止的行为清单**（全局，跨所有项目）：
 - ❌ 不读项目 CLAUDE.md 就动手修改
@@ -147,19 +147,19 @@ Step C: 验证 + 记录 → 跑测试/语法检查/编译 → 更新 .claude/mem
 
 ## 十四、记忆管理行为约束
 
-> 记忆文件的详细格式规范见 `~/.claude/memory/MEMORY-SPEC.md`。本节只保留行为约束。
+> 记忆文件的详细格式规范见项目 `memory-hub/MEMORY-SPEC.md`；若项目未建立 memory-hub，则以 `E:\claude-config-master\memory-hub/MEMORY-SPEC.md` 作为协议参考。本节只保留行为约束。
 
-51. **目录分类强制**：`.claude/memory/` 下按类型分子目录——`lessons/`（踩坑/bugfix）、`decisions/`（技术决策/设计选择）、`status/`（项目状态/计划/里程碑）、`reviews/`（评审框架/质量标准）、`refs/`（外部参考/工具配置）、`arch/`（架构子图）、`_archive/`（已淘汰记忆）。首次创建时必须预建全部 7 个子目录。**禁止根目录散放记忆文件**（`MEMORY.md` 和 `architecture-map.md` 除外）。
+51. **目录分类强制**：项目 `memory-hub/` 下按类型分子目录——`lessons/`（踩坑/bugfix）、`decisions/`（技术决策/设计选择）、`status/`（项目状态/计划/里程碑）、`reviews/`（评审框架/质量标准）、`refs/`（外部参考/工具配置）、`arch/`（架构子图）、`_archive/`（已淘汰记忆）。首次创建时必须预建全部 7 个子目录。**禁止根目录散放记忆文件**（`MEMORY.md` 和 `architecture-map.md` 除外）。
 
-52. **写入必须守规范**：所有记忆文件的创建、更新、合并、归档、淘汰必须遵守 `~/.claude/memory/MEMORY-SPEC.md` 的完整规范（含 frontmatter 必须字段、长度上限、合并规则、生命周期、检查清单）。**禁止创建无 frontmatter 的记忆文件；禁止文件无限制膨胀；禁止同主题记忆碎片化堆积；禁止只有写入没有淘汰。**
+52. **写入必须守规范**：所有记忆文件的创建、更新、合并、归档、淘汰必须遵守项目 `memory-hub/MEMORY-SPEC.md` 的完整规范（含 frontmatter 必须字段、长度上限、合并规则、生命周期、检查清单）。**禁止创建无 frontmatter 的记忆文件；禁止文件无限制膨胀；禁止同主题记忆碎片化堆积；禁止只有写入没有淘汰。**
 
 53. **索引上限淘汰**：项目 `MEMORY.md` 索引条目不超过 20 条。超限时必须淘汰低价值条目（详见 MEMORY-SPEC.md 索引淘汰规则）。
 
 ## 十五、Skill 生态管理规范
 
-> Skill 能力归属的权威矩阵见 `~/.claude/memory/decisions/skill-capability-ownership.md`（系统级，lifecycle: permanent）。
+> Skill 能力归属的权威矩阵见项目或配置协议 hub 中的 `memory-hub/decisions/skill-capability-ownership.md`（系统级，lifecycle: permanent）。
 
-54. **能力归属唯一**：每个能力域（评审/验证/代码审查/前端生成/图表生成等）只有一个权威 Skill（provides）。其他 Skill 只能编排引用该权威 Skill，不能重复实现相同能力。能力归属判定以系统级矩阵 `~/.claude/memory/decisions/skill-capability-ownership.md` 为准（lifecycle: permanent，不走记忆生命周期）。项目专属 Skill 的 provides 在自身 SKILL.md 声明，冲突在项目 CLAUDE.md 仲裁。无记录的能力域需先在矩阵中注册再实现。
+54. **能力归属唯一**：每个能力域（评审/验证/代码审查/前端生成/图表生成等）只有一个权威 Skill（provides）。其他 Skill 只能编排引用该权威 Skill，不能重复实现相同能力。能力归属判定以项目或配置协议 hub 中的 `memory-hub/decisions/skill-capability-ownership.md` 为准（lifecycle: permanent，不走记忆生命周期）。项目专属 Skill 的 provides 在自身 SKILL.md 声明，冲突在项目 CLAUDE.md 仲裁。无记录的能力域需先在矩阵中注册再实现。
 
 55. **编排者不实现**：编排 Skill（如 prd-v3）只定义流程和串联逻辑，不实现被编排 Skill 的能力。调用时引用被编排方的 Phase/维度定义（如"调用 deep-review Phase 3"），不硬编码具体维度数或检查项。修改被编排方后，硬编码的调用点会静默 break。
 
@@ -173,4 +173,14 @@ depends_on:
     purpose: PRD 评审
 ```
 
-57. **能力归属矩阵优先**：引入新 Skill 或扩展现有 Skill 能力前，先查 `~/.claude/memory/decisions/skill-capability-ownership.md`。如果归属矩阵中已有该能力的权威 Skill，必须编排它而非重新实现。如果归属矩阵中没有，在矩阵中注册后再实现，避免后续重复。依赖关系（depends_on）以各 SKILL.md frontmatter 为唯一权威源，矩阵不重复记录。
+57. **能力归属矩阵优先**：引入新 Skill 或扩展现有 Skill 能力前，先查项目或配置协议 hub 中的 `memory-hub/decisions/skill-capability-ownership.md`。如果归属矩阵中已有该能力的权威 Skill，必须编排它而非重新实现。如果归属矩阵中没有，在矩阵中注册后再实现，避免后续重复。依赖关系（depends_on）以各 SKILL.md frontmatter 为唯一权威源，矩阵不重复记录。
+
+## Universal Agent Memory Adapter
+
+- UAM uses three layers: project-local `<project>\memory-hub`, agent runtime roots (`~\.claude`, `~\.codex`), and long-term vault `E:\个人仓库\03_Knowledge\记忆中枢`.
+- For project work, read/write the current project's `memory-hub` first. Create it when durable project context appears.
+- Use `E:\claude-config-master\memory-hub` for protocol, migration status, and config-system decisions only.
+- Curate reusable cross-project knowledge into `E:\个人仓库\03_Knowledge\记忆中枢` through memory-bridge; do not dump project-specific state into the long-term vault.
+- Agent runtime memory under `~\.claude` or `~\.codex` is an adapter/cache/import source, not the long-term authority.
+- If Claude and Codex memories conflict, record the conflict in the relevant project `memory-hub\conflicts` or config `memory-hub\conflicts`; resolve before promoting to the long-term vault.
+- Never write credentials, tokens, private keys, raw personal data, local runtime state, daemon files, histories, or settings.local data into shared memory.

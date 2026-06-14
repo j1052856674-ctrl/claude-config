@@ -1,0 +1,30 @@
+﻿{
+  "version": "1.1",
+  "updated": "2026-06-14",
+  "sources": {
+    "project_memory_hub": {
+      "role": "project_authority",
+      "path": "<project>\\memory-hub"
+    },
+    "long_term_vault": {
+      "role": "cross_project_long_term_authority",
+      "path": "E:\\个人仓库\\03_Knowledge\\记忆中枢"
+    },
+    "config_memory_hub": {
+      "role": "protocol_and_config_repo_index",
+      "path": "E:\\claude-config-master\\memory-hub"
+    },
+    "claude_global": {
+      "role": "agent_runtime_adapter_or_import_source",
+      "path": "~\\.claude"
+    },
+    "codex_global": {
+      "role": "agent_runtime_adapter_or_import_source",
+      "path": "~\\.codex"
+    },
+    "claude_config_repo": {
+      "role": "git_tracked_source_and_distribution",
+      "path": "E:\\claude-config-master"
+    }
+  }
+}

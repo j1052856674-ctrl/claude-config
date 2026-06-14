@@ -1,21 +1,23 @@
-# Claude Config — 系统配置同步仓库
+# Claude/Codex Config — 统一配置同步仓库
 
-> Claude Code 全局配置（CLAUDE.md / MEMORY.md / Skills / Agents）的版本化管理仓库。
+> Claude Code 与 Codex 配置资产的版本化管理仓库。
+> 根目录资产服务 Claude Code，`codex/` 是 Codex 专用 staging/install 源，`memory-hub/` 记录本同步项目的 UAM 协议、迁移状态与决策。
 > 多机一键部署，本地迭代 → 推送 GitHub → 所有机器同步。
 
 ## 设计原则
 
-**只放系统级 `~/.claude/` 配置。** 具体项目的产出（PRD、知识库、模板等）放各自独立的仓库管理，不混入本仓库。
+**仓库是配置源，runtime 目录是部署目标。** `~/.claude/` 与 `~/.codex/` 只作为安装/适配/缓存位置；具体项目事实写各项目本地 `memory-hub/`，长期可复用知识由 memory-bridge 沉淀到 `E:\个人仓库\03_Knowledge\记忆中枢\`。
 
 ## 目录结构
 
 ```
 claude-config/
-├── CLAUDE.md                    # 全局 Agent 协作准则 v1.5
-├── MEMORY.md                    # 全局记忆索引
-├── sync.sh                      # 双向同步脚本（bash，跨平台零依赖）
-├── sync-config.example.json     # 同步配置模板（提交 git）
-├── sync-config.json             # 每台机自己的配置（gitignore）
+├── CLAUDE.md                    # Claude Code 全局/项目协作准则
+├── memory-hub/                  # 本同步项目的 UAM 协议、迁移状态与决策
+├── codex/                       # Codex 专用 staging/install 源
+├── sync.sh                      # Claude Code 双向同步脚本（bash，跨平台零依赖）
+├── sync-config.example.json     # Claude 同步配置模板（提交 git）
+├── sync-config.json             # 每台机自己的 Claude 配置（gitignore）
 │
 ├── agents/                      # 7 个 Agent 运行层定义
 │   ├── orchestrator.md
@@ -91,10 +93,25 @@ bash sync.sh deploy
 
 ## 维护
 
-- 修改 Skill/Agent 后 → `sync.py collect` → commit & push
-- 新机器首次 → clone → 改 `sync-config.json` → `sync.py deploy`
-- 废弃 Skill 直接从仓库删除，`sync.py deploy` 会自动同步到 `~/.claude/`
+- 修改 Skill/Agent 后 → `bash sync.sh collect` → commit & push
+- 新机器首次 → clone → 改 `sync-config.json` → `bash sync.sh deploy`
+- 废弃 Skill 直接从仓库删除，`bash sync.sh deploy` 会自动同步到 `~/.claude/`
 
 ---
 
 🤖 维护者: fan · 2026-06-14
+
+## Universal Agent Memory
+
+This repository now contains `memory-hub/`, the protocol/config hub for the layered Universal Agent Memory model shared by Claude and Codex.
+
+- Project facts authority: each project's local `<project>/memory-hub/`
+- Config/protocol hub: `E:\claude-config-master\memory-hub\`
+- Long-term reusable knowledge: `E:\个人仓库\03_Knowledge\记忆中枢\`
+- Short index: `memory-hub/MEMORY.md`
+- Protocol: `memory-hub/MEMORY-SPEC.md`
+- Routing manifest: `memory-hub/manifests/active.json`
+- Legacy Claude memory folders remain import sources unless a project explicitly overrides them.
+- Do not commit credentials, local runtime state, history, daemon files, or `settings.local.json` into shared memory.
+
+Before resetting or force-updating GitHub, review local changes with `git status` and `git diff`.

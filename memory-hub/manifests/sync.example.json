@@ -1,0 +1,29 @@
+﻿{
+  "version": "1.0",
+  "memory_hub": "E:\\claude-config-master\\memory-hub",
+  "clients": {
+    "claude": {
+      "global_rules": "~\\.claude\\CLAUDE.md",
+      "legacy_memory": "~\\.claude\\memory"
+    },
+    "codex": {
+      "global_rules": "~\\.codex\\AGENTS.md",
+      "legacy_memory": "~\\.codex\\memories"
+    }
+  },
+  "sync_items": [
+    "memory-hub/",
+    "CLAUDE.md",
+    "README.md"
+  ],
+  "never_sync": [
+    "*.local.json",
+    ".credentials.json",
+    "auth.json",
+    "history.jsonl",
+    "daemon*",
+    "logs_*.sqlite*",
+    "state_*.sqlite*",
+    "settings.local.json"
+  ]
+}

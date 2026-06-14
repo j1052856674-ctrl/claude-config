@@ -131,7 +131,7 @@ depends_on:
 **修复验证自动追加**：当以下条件同时满足时，在调用链末尾自动追加 review-fix-verify：
 
 ```
-条件 1: 评审对象存在历史评审报告（.claude/memory/reviews/review-*-{target-name}.md）
+条件 1: 评审对象存在历史评审报告（<project>/memory-hub/reviews/review-*-{target-name}.md）
 条件 2: 历史评审报告中有非 completed 状态的行动项
 条件 3: 当前代码/文档有改动（git diff 非空）
 
@@ -163,11 +163,11 @@ depends_on:
 统一报告输出后，**逐项执行以下自检**，全部 ✅ 才算评审完成：
 
 ```
-□ 1. 写报告文件：.claude/memory/reviews/review-{YYYYMMDD}-{target}.md 已存在且内容非空？
+□ 1. 写报告文件：<project>/memory-hub/reviews/review-{YYYYMMDD}-{target}.md 已存在且内容非空？
      → 否 → 立即写入，禁止跳过
 □ 2. 查 frontmatter：文件包含 bridge: true？
      → 否 → 自动补全
-□ 3. 查 MEMORY.md：项目 .claude/memory/MEMORY.md 中已有本条索引？
+□ 3. 查 MEMORY.md：<project>/memory-hub/MEMORY.md 中已有本条索引？
      → 否 → 追加一行 `- [review-{YYYYMMDD}-{target}](reviews/review-{YYYYMMDD}-{target}.md) — 评审报告`
 □ 4. 全过 → 评审完成，可切换任务
 ```
@@ -179,9 +179,9 @@ depends_on:
 
 ## 评审资产沉淀（强制）
 
-每次评审结束写入项目本地记忆：
-- 优先 `.claude/memory/reviews/`
-- Fallback：知识库项目 `03_Knowledge/记忆中枢/Skill设计/`
+每次评审结束写入项目本地 UAM 记忆：
+- 优先 `<project>/memory-hub/reviews/`
+- Fallback：知识库项目 `memory-hub/Skill设计/`
 - 文件名：`review-{YYYYMMDD}-{target-name}.md`
 - 必须 `bridge: true`
 

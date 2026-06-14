@@ -1,0 +1,21 @@
+﻿{
+  "version": "1.0",
+  "description": "Copy this file to sync-codex.json for machine-local overrides. Do not commit sync-codex.json.",
+  "codex_home": "~/.codex",
+  "items": [
+    "AGENTS.md",
+    "skills/",
+    "prompts/",
+    "workflows/",
+    "references/"
+  ],
+  "never_touch": [
+    "auth.json",
+    "config.toml",
+    "*.sqlite*",
+    "log/",
+    "cache/",
+    "sessions/",
+    ".sandbox*/"
+  ]
+}

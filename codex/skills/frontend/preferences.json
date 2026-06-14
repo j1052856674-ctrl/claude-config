@@ -1,0 +1,36 @@
+{
+  "_version": 1,
+  "_updated": "2026-06-12",
+  "_note": "用户前端设计偏好记忆。按场景独立记录。AI 在 Step 1.5 读取，Step 4.6 更新。不提交到 git。",
+  "scenes": {
+    "landing": {
+      "palettes": {},
+      "fonts": {},
+      "density": null
+    },
+    "creative": {
+      "styles": {},
+      "palettes": {},
+      "fonts": {}
+    },
+    "dashboard": {
+      "palettes": {},
+      "fonts": {},
+      "density": null
+    },
+    "presentation": {
+      "palettes": {},
+      "fonts": {}
+    },
+    "general": {
+      "palettes": {},
+      "fonts": {}
+    }
+  },
+  "antiPreferences": {
+    "palettes": [],
+    "fonts": [],
+    "patterns": [],
+    "note": "用户明确不喜欢或曾因负面反馈换掉的选项。Step 1.5 自动排除或降权。"
+  }
+}
