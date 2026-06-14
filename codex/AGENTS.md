@@ -66,6 +66,25 @@
 41. **探索后沉淀**：完成实质性项目探索后，如读过多个核心文件并形成架构理解，应把关键发现沉淀到项目总结或 `memory-hub`。
 42. **非代码项目按定位读文件**：文档、PRD、Skill、配置仓库等项目，优先读取 README、AGENTS、SKILL 或项目说明来定位核心文件。
 
+## 十二、Subagent 上下文传递
+
+> **Context Card** 是 agent 定义中预设的机制——orchestrator 派发 worker 时自动传入项目上下文。但用 Agent 工具直接启动 subagent 时 Context Card 不会被注入，agent 处于"上下文饥饿"状态。
+
+60. **直接启动 subagent 必须附 Context Card**：每次启动非 orchestrated subagent 时，prompt 头 200 tokens 内必须包含：项目名称/类型、当前阶段、架构图路径（若存在）、相关决策和踩坑。**禁止**只给文件路径不给项目全貌。来源：2026-06-14 Claude 端同问题踩坑，跨工具迁移至此。
+
+61. **Subagent 场景识别**：启动前自问——agent 需要调用工具/涉及 Schema/读项目文件吗？任一为"是"则 context 块不可省略。
+
+62. **Context Card 最小模板**：
+    ```
+    ## Project Context
+    - 项目：{name}（{类型}）
+    - 阶段：{phase}
+    - 架构图：{path}
+    - 相关决策/踩坑：[{files}]
+    ## Task
+    {具体任务}
+    ```
+
 ## 八、错误处理
 
 43. **先定位根因**：遇到失败时，先分析错误信息、复现路径和相关上下文，避免盲目尝试。

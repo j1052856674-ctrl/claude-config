@@ -173,7 +173,40 @@ depends_on:
     purpose: PRD 评审
 ```
 
-57. **能力归属矩阵优先**：引入新 Skill 或扩展现有 Skill 能力前，先查项目或配置协议 hub 中的 `memory-hub/decisions/skill-capability-ownership.md`。如果归属矩阵中已有该能力的权威 Skill，必须编排它而非重新实现。如果归属矩阵中没有，在矩阵中注册后再实现，避免后续重复。依赖关系（depends_on）以各 SKILL.md frontmatter 为唯一权威源，矩阵不重复记录。
+57. **能力归属矩阵优先**：引入新 Skill 或扩展现有 Skill 能力前，先查项目或配置协议 hub 中的 `memory-hub/decisions/skill-capability-ownership.md`。如果归属矩阵中已有该能力的权威 Skill，必须编排它而非重新实现。如果归属矩阵中没有，在矩阵中注册后再实现，避免后续重复。依赖关系（depends_on）以各 SKILL.md frontmatter 为唯一权威源，矩阵不重复记录。## 十六、Subagent 上下文传递
+
+> **Context Card** 是 agent 定义中预设的机制——orchestrator 派发 worker 时自动传入项目上下文。但用 `Agent` 工具直接启动 subagent 时，Context Card 不会被注入，agent 处于"上下文饥饿"状态。
+>
+> **以下规则作用于所有 `Agent` 工具的直接调用，无论是否使用 orchestrator。**
+
+58. **直接启动 subagent 必须附 Context Card**：每次调用 `Agent` 工具启动非 orchestrated subagent 时，prompt 头 200 tokens 内必须包含：
+    - 项目名称 + 类型（代码/文档/设计/Skill 库）
+    - 当前工作阶段（Phase 0/1/2/...）
+    - `architecture-map` 路径（若存在）
+    - 与本任务相关的决策文件和已知踩坑
+
+    **禁止**只给文件路径不给项目全貌——subagent 无法判断任务边界、不能利用已有决策、会重复踩坑。**这是 2026-06-14 在 ai-cat-animation-ip 项目中实踩的系统性问题。**
+
+59. **Subagent 场景识别**：启动 agent 前自问：
+    - 这个 agent 需要调用工具（OpenCLI/lark-cli）吗？→ 需要看到 `toolchain.yaml` 已知问题
+    - 这个 agent 涉及 Schema/VC 吗？→ 需要知道 schema 是权威契约
+    - 这个 agent 会读 `content/` 文件吗？→ 需要知道项目策略和方向
+    - 上述任一为"是"，则 context 块不能省略。
+
+60. **Context Card 最小模板**：直接启动 subagent 时，prompt 格式：
+    ```
+    ## Project Context
+    - 项目：{name}（{类型}）
+    - 阶段：{phase}
+    - 架构图：{path to architecture-map}
+    - 相关决策：[{decision files}]
+    - 相关踩坑：[{lesson files}]
+
+    ## Task
+    {具体任务}
+    ```
+    **Why**：~200 tokens 的 context 块让 subagent 能利用已有决策、不重复踩坑、产出与项目一致的输出。
+    **How to apply**：每次调用 `Agent` 工具时，上面的 Project Context 块必须出现。缺省视为 launch 不完整。
 
 ## Universal Agent Memory Adapter
 
