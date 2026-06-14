@@ -99,7 +99,7 @@ const genResults = await parallel(diagrams.map(d => () =>
 
 // Phase 2: validate.py 校验
 const validResults = await parallel(genResults.filter(Boolean).map(r =>
-  () => agent(`运行 python3 C:/Users/fanjiang/.claude/skills/drawio-skill/scripts/validate.py ${outputDir}/${r.filename}`, {
+  () => agent(`运行 python3 ~/.claude/skills/drawio-skill/scripts/validate.py ${outputDir}/${r.filename}`, {
     label: `validate:${r.filename}`,
     phase: 'Validate'
   })
