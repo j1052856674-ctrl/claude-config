@@ -74,12 +74,13 @@ Skill 评审触发 3 视角隔离（已内置在 deep-review 的 multi-agent-iso
 - [ ] **A3**: 每个 `depends_on` 条目包含 `skill` 字段（目标 Skill 名）
 - [ ] **A4**: 子目录中如果有子 Skill（含独立 SKILL.md），每个子 Skill 的 frontmatter 也满足 A1-A3（无子 Skill → N/A）
 
-### B. 文件门禁（4 项全过或 N/A 才进入评分）
+### B. 文件门禁（5 项全过或 N/A 才进入评分）
 
 - [ ] **B1**: SKILL.md 中引用的所有内部文件路径均存在（无内部引用 → N/A）
 - [ ] **B2**: depends_on 中引用的所有外部 Skill 文件均存在（或明确标注 `optional: true`）
 - [ ] **B3**: 所有 JSON 配置文件语法有效（无 JSON 配置文件 → N/A）
 - [ ] **B4**: 模板文件中 `*` 标记（必填）的数量与 checklist 中必填项数量一致（无模板文件 → N/A）
+- [ ] **B5**: 文件中不含机器特定硬编码路径（如 `C:/Users/xxx/`、`D:/app/`、`E:/具体项目名/`）。应使用 `~/.claude/`、配置文件或通用命令名。示例文档中允许占位符路径（如 `E:/project/path/`）。（无绝对路径 → N/A）
 
 ### C. 目录门禁（3 项全过或 N/A 才进入评分）
 
@@ -194,7 +195,7 @@ Skill 评审触发 3 视角隔离（已内置在 deep-review 的 multi-agent-iso
 
 ```
 1. 指出评审对象：文件路径（Skill 的 SKILL.md + 配套目录）
-2. 跑门禁检查：§三 的 3 类 11 项，全部 PASS 或 N/A 后才能进入评分
+2. 跑门禁检查：§三 的 3 类 12 项，全部 PASS 或 N/A 后才能进入评分
 3. 出评分报告：3 视角隔离 → 7 维度评分 → §七 格式输出
 ```
 
@@ -335,7 +336,7 @@ review-skill 的 §七 输出可映射到 deep-review `references/review-output.
 | 核心问题 | "方案对比选型" | "Skill 设计是否完整、可维护、可编排" |
 | 评估框架 | 通用 9 维度 | 专属 7 维度 |
 | 视角组合 | 评审对象类型决定 | 固定 使用者/维护者/编排者 |
-| 门禁机制 | 无 | 3 类 11 项硬性门禁 |
+| 门禁机制 | 无 | 3 类 12 项硬性门禁 |
 
 ---
 
@@ -350,3 +351,4 @@ review-skill 的 §七 输出可映射到 deep-review `references/review-output.
 - **不得忽略子 Skill 的声明完整性**——主 Skill 的 provides/depends_on 正确 ≠ 体系正确
   → 警惕"子 Skill 的 frontmatter 不重要，看主 Skill 就够了"——每个子 Skill 是独立编排单元
 - **不得固定用 review-approach 评审 Skill**——场景判定发现是 Skill 必须切换到 review-skill
+- **不得忽略文件中的机器特定路径**——示例和说明性文件路径（如 `E:/prd/examples/`）可接受，但执行路径和引用路径必须可移植。评审时如果发现 `C:/Users/具体用户名/` 或 `D:/具体软件/` 这类路径，标记为 🔴 致命
