@@ -153,6 +153,25 @@ description: 切换 Claude Code 权限模式，提供 4 个级别从日常确认
 
 > ⚠️ **切换前确认**：你即将开放所有权限，包括文件删除、历史覆盖、进程终止等破坏性操作。确认继续？
 
+### 前置检测：关键命令 PATH 可用性
+
+**仅对 level 1/2/3 生效**（off 恢复模式跳过）。
+
+1. 读取 `references/levels.json` 中的 `_pathCheck.commands` 列表
+2. 对每个命令执行 `which <cmd>`（POSIX）或 `where <cmd>`（Windows fallback）
+3. 收集不在 PATH 中的命令，存入 `missingCommands` 数组
+4. 如果 `missingCommands` 非空，在后续通知中附加警告
+
+**检测逻辑**（伪代码）：
+
+```
+missingCommands = []
+for cmd in _pathCheck.commands:
+    result = run("which {cmd} || where {cmd} 2>nul")
+    if result.exitCode != 0:
+        missingCommands.append(cmd)
+```
+
 ### 步骤 4：切换完成通知
 
 根据切换到的级别，用以下格式通知用户：
@@ -169,9 +188,17 @@ description: 切换 Claude Code 权限模式，提供 4 个级别从日常确认
 各级别切换通知文案（必须包含开放范围和仍拦截的破坏性操作）：
 
 - **off**："已恢复日常模式。操作恢复确认弹窗，保留你最初的白名单 + 自动模式期间手动添加的权限。"
-- **1**："轻量自动模式。免确认：Read/Write/Edit/Glob/Grep/WebFetch/WebSearch/NotebookEdit（纯文件与搜索工具，无任何 Bash 命令）。仍需确认：全部 Bash、Agent、MCP。"
-- **2**："半自动模式。免确认：级别1全部 + Agent + 60+常见Bash（git/ls/cp/mv/find/python/npm/node/pip/curl/gh/docker/tar 等）。**仍需确认的破坏性操作**：rm/rmdir/del（删文件目录）、git push --force/reset --hard（覆盖历史）、taskkill（杀进程）、mklink/reg（改系统配置）、format/diskpart（磁盘操作）及其他未白名单Bash。⚠️ Windows 用户：Bash(powershell *) 已自动批准，PowerShell 可执行等效破坏性操作（Remove-Item/Stop-Process/Set-ItemProperty），如需严格文件保护请使用 L1。"
-- **3**："全自动模式。所有工具 + Bash(*) 已开放，**不再有任何确认弹窗**，包括 rm、del、push --force、taskkill 等破坏性命令。请谨慎使用，任务完成后及时切回较低级别。"
+- **1**："轻量自动模式。免确认：Read/Write/Edit/Glob/Grep/WebFetch/WebSearch/NotebookEdit（纯文件与搜索工具，无任何 Bash 命令）。仍需确认：全部 Bash、Agent、MCP。{pathWarning}"
+- **2**："半自动模式。免确认：级别1全部 + Agent + 60+常见Bash（git/ls/cp/mv/find/python/npm/node/pip/curl/gh/docker/tar 等）。**仍需确认的破坏性操作**：rm/rmdir/del（删文件目录）、git push --force/reset --hard（覆盖历史）、taskkill（杀进程）、mklink/reg（改系统配置）、format/diskpart（磁盘操作）及其他未白名单Bash。⚠️ Windows 用户：Bash(powershell *) 已自动批准，PowerShell 可执行等效破坏性操作（Remove-Item/Stop-Process/Set-ItemProperty），如需严格文件保护请使用 L1。{pathWarning}"
+- **3**："全自动模式。所有工具 + Bash(*) 已开放，**不再有任何确认弹窗**，包括 rm、del、push --force、taskkill 等破坏性命令。请谨慎使用，任务完成后及时切回较低级别。{pathWarning}"
+
+> `{pathWarning}` 替换规则：如果前置检测的 `missingCommands` 非空，替换为：
+> ```
+> 
+> ⚠️ **PATH 缺失警告**：以下命令不在 PATH 中，白名单匹配可能失效：{逗号分隔的缺失命令列表}
+> 💡 **修复**：将对应路径加入 PATH 或 `~/.bashrc`，否则即使已开启本模式，这些命令仍需手动确认。
+> ```
+> 如果 `missingCommands` 为空，`{pathWarning}` 替换为空字符串。
 
 ## 步骤 5：当前状态查询
 

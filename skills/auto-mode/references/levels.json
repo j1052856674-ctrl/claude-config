@@ -4,6 +4,10 @@
     "description": "auto-mode 权限配置唯一权威源。修改权限列表只需修改此文件。SKILL.md 引用此文件，不重复硬编码。",
     "templateAllNote": "TEMPLATE_ALL 在运行时由 L1+L2+L3 的 allow 条目自动聚合（并集去重），不在此文件中单独维护。"
   },
+  "_pathCheck": {
+    "description": "切换完成后检测关键命令是否在 PATH 中。仅对 level 1/2/3 生效。缺失命令在通知中以警告形式提醒用户。",
+    "commands": ["git", "gh", "docker", "python", "node", "npm", "npx", "pip", "curl", "cargo", "go", "dotnet"]
+  },
   "off": {
     "description": "日常模式：diff 恢复用户原始白名单 + 用户手动添加的权限",
     "permissions": null,
