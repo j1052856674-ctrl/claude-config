@@ -13,7 +13,7 @@
 claude-config/
 ├── CLAUDE.md                    # 全局 Agent 协作准则 v1.5
 ├── MEMORY.md                    # 全局记忆索引
-├── sync.py                      # 双向同步脚本
+├── sync.sh                      # 双向同步脚本（bash，跨平台零依赖）
 ├── sync-config.example.json     # 同步配置模板（提交 git）
 ├── sync-config.json             # 每台机自己的配置（gitignore）
 │
@@ -56,29 +56,29 @@ claude-config/
 git clone https://github.com/j1052856674-ctrl/claude-config.git
 cd claude-config
 cp sync-config.example.json sync-config.json   # 编辑机器名
-python sync.py deploy                           # 部署到 ~/.claude/
+bash sync.sh deploy                              # 部署到 ~/.claude/
 ```
 
 ### 日常操作
 
 ```bash
 # 本机改完配置后，收集变更 → push
-python sync.py collect
+bash sync.sh collect
 git add -A && git commit -m "sync: 描述"
 git push
 
 # 另一台机 pull → 部署
 git pull
-python sync.py deploy
+bash sync.sh deploy
 ```
 
 ### 命令说明
 
 | 命令 | 作用 |
 |------|------|
-| `python sync.py status` | 查看同步状态（dry-run） |
-| `python sync.py deploy` | 仓库 → `~/.claude/` |
-| `python sync.py collect` | `~/.claude/` → 仓库 |
+| `bash sync.sh status` | 查看同步状态（dry-run） |
+| `bash sync.sh deploy` | 仓库 → `~/.claude/` |
+| `bash sync.sh collect` | `~/.claude/` → 仓库 |
 
 ## 统计
 
