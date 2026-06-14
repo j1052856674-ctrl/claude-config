@@ -59,7 +59,7 @@ rm -f output/[项目名]/drawio/*.bkp
 
 导出：
 ```bash
-D:/draw.io/draw.io.exe -x -f png -e -s 2 -o output.png input.drawio
+drawio -x -f png -e -s 2 -o output.png input.drawio
 ```
 
 自检清单（16项）：

@@ -3,7 +3,7 @@
 > 所有 prd-v3 生成的 HTML PRD 文件必须遵循此风格规范。
 > **v2.0 新增**：section-level contentEditable 编辑态样式、diagram tab 切换、zoom modal、底部 toolbar 行列按钮。
 > 引用 `standards/html-editable-spec.md`（可编辑交互规格）、`standards/html-build-spec.md`（MD→HTML 构建规范）。
-> drawio 样例参考：`E:/prd/examples/tapd-flowchart/tapd-flowchart-demo.drawio`
+> drawio 样式参考：TAPD 流程图（简洁纵向、节点对齐、浅色系）
 
 ## 设计语言
 
@@ -53,7 +53,7 @@
 
 ## 字体
 
-> 字体栈参考 `E:/prd/DataAgent_Architecture.html` 的风格：系统原生字体栈，不加装饰字体。
+> 字体栈：系统原生字体栈，不加装饰字体。
 > 中文环境下 `PingFang SC` 和 `Microsoft YaHei` 是桌面端最佳选择，移动端回退到系统默认。
 
 ```css

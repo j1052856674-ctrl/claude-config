@@ -6,7 +6,7 @@
 > 🚨 **重要声明：Mermaid 是中间态，drawio 是最终交付物**
 > - HTML中的Mermaid渲染是AI生成的预览态，方便快速查看逻辑流程
 > - 最终交付物为 drawio XML 文件，可在 draw.io 桌面端手动微调
-> - 样例参考：`E:/prd/examples/tapd-flowchart/tapd-flowchart-demo.drawio`（TAPD风格流程图）
+> - 参考风格：TAPD 风格流程图（简洁、纵向、节点对齐）
 > - 转换流程：Mermaid → Python脚本(`scripts/gen_drawio.py`)生成drawio XML → draw.io手动微调 → PNG/SVG导出
 
 ---
@@ -362,10 +362,10 @@ window.parent.postMessage({ type: 'flowchart_change', data: changes }, '*');
 
 ```bash
 # 导出预览 PNG（Step 4，不带 -e）
-"D:/draw.io/draw.io.exe" -x -f png --width 2000 -o output.png input.drawio
+drawio -x -f png --width 2000 -o output.png input.drawio
 
 # 导出最终 PNG（Step 7，带 -e）
-"D:/draw.io/draw.io.exe" -x -f png -e -s 2 -o output.drawio.png input.drawio
+drawio -x -f png -e -s 2 -o output.drawio.png input.drawio
 
 # 修复 -e PNG 的 IEND 截断问题
 python ~/.claude/skills/drawio-skill/scripts/repair_png.py output.drawio.png

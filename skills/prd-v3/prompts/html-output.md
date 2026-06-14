@@ -228,7 +228,7 @@ tab.addEventListener('click', function(){
 
 1. **中间态**：HTML中的Mermaid代码是AI生成的预览态，3图 tab 切换 + classDef 配色
 2. **转换流程**：Mermaid → Python脚本生成drawio XML → draw.io桌面端手动微调 → PNG/SVG导出
-3. **drawio风格**：遵循TAPD样例（`E:/prd/examples/tapd-flowchart/tapd-flowchart-demo.drawio`）
+3. **drawio风格**：TAPD 风格 — 简洁纵向、节点对齐、浅色系
 
 ## 生成检查清单
 
