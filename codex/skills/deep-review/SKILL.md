@@ -29,7 +29,7 @@ depends_on:
 - 判定场景后再加载子 Skill，不预加载全部
 - 子 Skill 之间传上下文（上一阶段结论摘要 ≤500 字），不重复加载输入文件
 - **全程不中断**：调用链全部跑完才统一输出报告。禁止每个子阶段结束后停下来等待用户——中间结果只收集不汇报
-- 评审资产每次必写入（路径规则见下方）
+- 评审资产按风险沉淀：L1 轻量评审可只在对话中输出；L2/L3 深度评审或用户明确要求留档时写入文件
 
 ---
 
@@ -154,36 +154,49 @@ depends_on:
 
 ## Step 3: 统一输出
 
-主对话输出摘要卡片（≤1k token），完整报告写入文件。格式见 `references/review-output.md`。
+主对话输出摘要卡片（≤1k token）。是否写完整报告文件由沉淀等级决定：
+
+- L1 轻量评审：默认不落盘，除非用户要求或发现会影响后续工作的 P0/P1 问题。
+- L2/L3 深度评审：写入文件，格式见 `references/review-output.md`。
+- 已存在同一对象评审报告时：优先更新原报告或在 frontmatter 写 `supersedes`，避免日期流水。
 
 ---
 
-## Step 4: 资产沉淀门禁（强制自检清单）
+## Step 4: 资产沉淀门禁
 
-统一报告输出后，**逐项执行以下自检**，全部 ✅ 才算评审完成：
+统一报告输出后，先判定是否需要沉淀：
+
+| 条件 | 处理 |
+|---|---|
+| L1 轻量评审，且无 P0/P1 长期风险 | 可不落盘；在对话中说明"未写入 memory-hub" |
+| L2/L3 深度评审 | 必须写入 `reviews/` |
+| 用户明确要求留档 | 必须写入 `reviews/` |
+| 评审产生不可逆决策或重复踩坑 | 报告可写入 `reviews/`，结论另沉淀到 `decisions/` 或 `lessons/` |
+
+需要沉淀时执行以下自检：
 
 ```
 □ 1. 写报告文件：<project>/memory-hub/reviews/review-{YYYYMMDD}-{target}.md 已存在且内容非空？
      → 否 → 立即写入，禁止跳过
-□ 2. 查 frontmatter：文件包含 bridge: true？
-     → 否 → 自动补全
-□ 3. 查 MEMORY.md：项目 <project>/memory-hub/MEMORY.md 中已有本条索引？
-     → 否 → 追加一行 `- [review-{YYYYMMDD}-{target}](reviews/review-{YYYYMMDD}-{target}.md) — 评审报告`
+□ 2. 查 frontmatter：文件包含 bridge 字段？
+     → 否 → 补 `bridge: false`；只有跨项目可复用且已抽象成原则时才设 true
+□ 3. 查 MEMORY.md：本报告是否仍在驱动当前工作？
+     → 是 → 追加或更新索引；否 → 不加入启动索引
 □ 4. 全过 → 评审完成，可切换任务
 ```
 
-**以上 4 项全部 ✅ 后才能在对话中声称"评审完成"。
-任何一项未通过 → 评审未完成 → 禁止推进到修复/下一任务。**
+**需要沉淀的评审必须通过以上 4 项后，才能声称"评审已留档"。不需要沉淀的 L1 评审，可以在对话中完成。**
 
 ---
 
-## 评审资产沉淀（强制）
+## 评审资产沉淀
 
-每次评审结束写入项目本地记忆：
+按风险写入项目本地记忆：
 - 优先 `<project>/memory-hub/reviews/`
-- Fallback：知识库项目 `03_Knowledge/记忆中枢/Skill设计/`
+- 不再使用跨项目知识库作为普通评审 fallback；跨项目知识只通过 memory-bridge 精选沉淀
 - 文件名：`review-{YYYYMMDD}-{target-name}.md`
-- 必须 `bridge: true`
+- 默认 `bridge: false`
+- 只有评审方法本身可跨项目复用，且不依赖项目私有上下文时，才设 `bridge: true`
 
 ---
 
@@ -193,11 +206,11 @@ depends_on:
 - 不得跳过 Step 0 隔离评分
 - 不得预加载全部子 Skill——按调用链按需加载
 - 不得把决策推回给用户——评审必须带明确推荐
-- 不得跳过资产沉淀
-- 不得跳过 Step 4 资产门禁——评审报告未写入即评审未完成
+- 不得把普通 L1 评审强制写成长期记忆
+- 需要沉淀时不得跳过 Step 4 资产门禁
 - 隔离模式下报告必须写文件，不堆回主对话
   → 警惕"报告不长，直接贴对话里吧"——隔离模式强制写文件
 
 ## Codex Adapter Note
 
-This skill lives under `codex/skills` as a Codex staging adaptation. Project memory should use local `<project>/memory-hub`; cross-project long-term knowledge should be curated into `E:\个人仓库\03_Knowledge\记忆中枢`; config-system protocol lives in `E:\claude-config-master\memory-hub`.
+This skill lives under `codex/skills` as a Codex staging adaptation. Project memory should use local `<project>/memory-hub`; cross-project long-term knowledge should be curated into `E:\个人仓库\03_Knowledge\记忆中枢`; config-system protocol lives in `E:\claude-config\memory-hub`.

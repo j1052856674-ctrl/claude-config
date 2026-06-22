@@ -29,6 +29,7 @@
 
 ## 系统级资源
 - Skill 能力归属矩阵：~/.claude/memory/decisions/skill-capability-ownership.md — 每个能力域的唯一权威 Skill，lifecycle: permanent
+- 记忆沉淀协议：项目本地 `<project>/memory-hub/` 为项目事实权威源；详细写入准入、`bridge` 默认 false、review/snapshot/归档规则见 `E:\claude-config\memory-hub\MEMORY-SPEC.md`，项目有自己的 `memory-hub/MEMORY-SPEC.md` 时以项目规范为准
 
 ## 记忆体系架构
 本文件是三层记忆架构中的"事实层"：
@@ -38,8 +39,9 @@
 | 规则层 | ~/.claude/CLAUDE.md | 行为约束（必须/禁止） | 全局，零权限 | 所有项目 |
 | 事实层 | ~/.claude/MEMORY.md | 本文件。一句话摘要+指针 | 全局，零权限 | 所有项目 |
 | 详情层 | 日常仓库/03_Knowledge/记忆中枢/ | 完整内容、双链、frontmatter | 需配Read权限 | 按需 |
-| 操作层 | 各项目 .claude/memory/ | 即时读写 | 项目内，零权限 | 仅本项目 |
+| 项目权威层 | 各项目 `<project>/memory-hub/` | 项目事实、状态、决策、踩坑、评审资产 | 项目内，零权限 | 仅本项目 |
+| Runtime 适配层 | ~/.claude/、~/.codex/、旧 `.claude/memory/` | 安装目标、缓存、导入源 | 本机运行态 | 按需 |
 
 **记忆流转：**
-- 写入：项目操作层 → bridge:true 标记 → memory-bridge Skill 定期拉取 → 沉淀到详情层 → 更新本文件
-- 读取：所有项目先读本文件（一句话摘要）→ 大部分场景已够用 → 需详情时按指针读详情层
+- 写入：满足准入的项目事实 → `<project>/memory-hub/` → 显式 `bridge: true` 候选 → memory-bridge 精选、去敏、去重、通用化 → 详情层 → 更新本文件
+- 读取：先读项目 `memory-hub/MEMORY.md`；跨项目事实再读本文件（一句话摘要）；需详情时按指针读详情层

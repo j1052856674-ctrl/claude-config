@@ -43,7 +43,7 @@
 ## 六、上下文与持久化
 
 23. **维护项目上下文**：持续关注项目目标、技术栈、关键架构、当前任务边界和已知问题。
-24. **重大进展必须记录**：完成关键决策、架构变更、长期任务阶段性成果后，必须更新项目记忆或等价文档。**禁止完成重大进展后不记录。**
+24. **重大进展按准入记录**：完成关键决策、架构变更、长期任务阶段性成果、重复踩坑修复后，先按项目 `memory-hub/MEMORY-SPEC.md` 判断是否满足写入准入；满足则更新项目记忆或等价文档。**禁止把普通过程流水、临时想法、一次性命令输出写成长期记忆。**
 
 ## 七、安全红线
 
@@ -63,7 +63,7 @@
 
 31. **承认并修正错误**：被用户纠正后，简要说明根因、修正方式和后续防范点。**禁止掩盖错误或推诿责任。**
 
-32. **踩坑必须沉淀**：任何反复出现的错误模式，必须写入项目本地 `memory-hub/lessons/` 并标注 `bridge: true`（写入规范见项目 `memory-hub/MEMORY-SPEC.md`；若项目尚无 memory-hub，则先创建最小目录和索引）。跨 session 重复犯同类错误属于违规行为。**禁止踩坑后不沉淀经验。**
+32. **重复踩坑必须沉淀**：反复出现、会造成返工、或影响后续 Agent 行为的错误模式，必须写入项目本地 `memory-hub/lessons/`；`bridge` 默认 `false`，只有抽象成跨项目可复用原则且不含项目私有细节时才设 `true`。跨 session 重复犯同类错误属于违规行为。**禁止把一次性小错或命令噪音强行沉淀。**
 
 33. **谁写的谁修**：使用多 Agent 模式时，修复 bug 应 resume 原 Agent 而非新开，验收应 resume 原 tester 而非新开。保留历史上下文使修复更精准。
 
@@ -74,15 +74,15 @@
 
 ## 十、记忆体系
 
-36. **三层记忆架构**：项目本地 `memory-hub/` 记录项目事实与状态；Agent runtime roots（`~/.claude/`、`~/.codex/`）只作为适配/缓存/安装目标；长期可复用知识由 memory-bridge 沉淀到 `E:\个人仓库\03_Knowledge\记忆中枢\`。`E:\claude-config-master\memory-hub` 只记录本配置同步项目的协议、迁移状态和决策。
+36. **三层记忆架构**：项目本地 `memory-hub/` 记录项目事实与状态；Agent runtime roots（`~/.claude/`、`~/.codex/`）只作为适配/缓存/安装目标；长期可复用知识由 memory-bridge 沉淀到 `E:\个人仓库\03_Knowledge\记忆中枢\`。`E:\claude-config\memory-hub` 只记录本配置同步项目的协议、迁移状态和决策。
 
-37. **写入优先项目本地 hub**：踩坑、反馈、项目状态等长期记忆，先写入当前项目 `memory-hub/` 对应子目录，标注 `bridge: true`。项目内零权限障碍，即时可用。
+37. **写入优先项目本地 hub**：满足写入准入的踩坑、反馈、项目状态等长期记忆，先写入当前项目 `memory-hub/` 对应子目录。`bridge` 默认 `false`；只有跨项目可复用、已抽象、去项目私有化的条目才标注 `bridge: true`。
 
 38. **runtime 事实层只作适配**：`~/.claude/MEMORY.md`、`~/.codex` 本地记忆和 legacy `.claude/memory/` 只作为索引、缓存或导入源；等价记录进入项目 `memory-hub/` 或长期知识库后，以新位置为准。
 
 39. **详情层按需读取**：需要完整记忆详情时，优先按项目 `memory-hub/MEMORY.md` 指针读取；跨项目通用经验按长期知识库指针读取。
 
-40. **Bridge 定期沉淀**：`memory-bridge` Skill 从各项目 `memory-hub/` 拉取 `bridge: true` 记忆 → 去敏/去重/通用化 → 结构化写入长期知识库 `E:\个人仓库\03_Knowledge\记忆中枢\` → 更新索引 → 人类审查后升级为常青知识。
+40. **Bridge 精选沉淀**：`memory-bridge` Skill 只从各项目 `memory-hub/` 拉取显式 `bridge: true` 且满足准入的记忆 → 去敏/去重/通用化 → 结构化写入长期知识库 `E:\个人仓库\03_Knowledge\记忆中枢\` → 更新索引 → 人类审查后升级为常青知识。**禁止把普通 review、snapshot、git 流水、路径修复记录直接桥接。**
 
 41. **规则与事实分离**：CLAUDE.md 只记行为约束（违反会造成返工或风险的规则）；MEMORY.md 记事实和偏好（指导决策但不强制）。**禁止在 CLAUDE.md 中写入不属于行为约束的偏好信息。**
 
@@ -94,7 +94,7 @@
 
 43. **探索后必更新架构图**：对代码项目完成实质性探索后（读取 5+ 文件、理解模块关系），必须将关键发现更新到项目 `memory-hub/` 中的 architecture-map 或等价架构记忆。非代码项目按项目自身规范记录。**禁止完成探索后不更新架构图记忆——这是跨 session 知识传递的核心机制。**
 
-44. **架构图格式规范**：架构图记忆使用标准 memory frontmatter（name: architecture-map, type: project, bridge: true），正文使用表格 + 简明描述，避免大段代码复制。目标：读完架构图 ≈ 读完 20+ 源文件的关键知识，3k tokens 内获得足够上下文。
+44. **架构图格式规范**：架构图记忆使用标准 memory frontmatter（name: architecture-map, type: project, bridge: false），正文使用表格 + 简明描述，避免大段代码复制。只有抽象成跨项目架构方法论的独立条目才可 `bridge: true`。目标：读完架构图 ≈ 读完 20+ 源文件的关键知识，3k tokens 内获得足够上下文。
 
 ## 十二、项目启动规范
 
@@ -147,11 +147,11 @@ Step C: 验证 + 记录 → 跑测试/语法检查/编译 → 更新项目 memor
 
 ## 十四、记忆管理行为约束
 
-> 记忆文件的详细格式规范见项目 `memory-hub/MEMORY-SPEC.md`；若项目未建立 memory-hub，则以 `E:\claude-config-master\memory-hub/MEMORY-SPEC.md` 作为协议参考。本节只保留行为约束。
+> 记忆文件的详细格式规范见项目 `memory-hub/MEMORY-SPEC.md`；若项目未建立 memory-hub，则以 `E:\claude-config\memory-hub\MEMORY-SPEC.md` 作为协议参考。本节只保留行为约束。
 
 51. **目录分类强制**：项目 `memory-hub/` 下按类型分子目录——`lessons/`（踩坑/bugfix）、`decisions/`（技术决策/设计选择）、`status/`（项目状态/计划/里程碑）、`reviews/`（评审框架/质量标准）、`refs/`（外部参考/工具配置）、`arch/`（架构子图）、`_archive/`（已淘汰记忆）。首次创建时必须预建全部 7 个子目录。**禁止根目录散放记忆文件**（`MEMORY.md` 和 `architecture-map.md` 除外）。
 
-52. **写入必须守规范**：所有记忆文件的创建、更新、合并、归档、淘汰必须遵守项目 `memory-hub/MEMORY-SPEC.md` 的完整规范（含 frontmatter 必须字段、长度上限、合并规则、生命周期、检查清单）。**禁止创建无 frontmatter 的记忆文件；禁止文件无限制膨胀；禁止同主题记忆碎片化堆积；禁止只有写入没有淘汰。**
+52. **写入必须守规范**：所有记忆文件的创建、更新、合并、归档、淘汰必须遵守项目 `memory-hub/MEMORY-SPEC.md` 的完整规范（含写入准入、frontmatter、`bridge` 默认 false、索引上限、合并规则、生命周期、检查清单）。**禁止创建无 frontmatter 的记忆文件；禁止文件无限制膨胀；禁止同主题记忆碎片化堆积；禁止只有写入没有淘汰。**
 
 53. **索引上限淘汰**：项目 `MEMORY.md` 索引条目不超过 20 条。超限时必须淘汰低价值条目（详见 MEMORY-SPEC.md 索引淘汰规则）。
 
@@ -212,7 +212,7 @@ depends_on:
 
 - UAM uses three layers: project-local `<project>\memory-hub`, agent runtime roots (`~\.claude`, `~\.codex`), and long-term vault `E:\个人仓库\03_Knowledge\记忆中枢`.
 - For project work, read/write the current project's `memory-hub` first. Create it when durable project context appears.
-- Use `E:\claude-config-master\memory-hub` for protocol, migration status, and config-system decisions only.
+- Use `E:\claude-config\memory-hub` for protocol, migration status, and config-system decisions only.
 - Curate reusable cross-project knowledge into `E:\个人仓库\03_Knowledge\记忆中枢` through memory-bridge; do not dump project-specific state into the long-term vault.
 - Agent runtime memory under `~\.claude` or `~\.codex` is an adapter/cache/import source, not the long-term authority.
 - If Claude and Codex memories conflict, record the conflict in the relevant project `memory-hub\conflicts` or config `memory-hub\conflicts`; resolve before promoting to the long-term vault.

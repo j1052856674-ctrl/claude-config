@@ -1,8 +1,8 @@
-﻿# Universal Agent Memory Spec v1.1
+# Universal Agent Memory Spec v2.0
 
-Universal Agent Memory (UAM) is a layered memory protocol shared by Claude, Codex, and future agents. It separates project-local facts, tool-specific adapters, and long-term human knowledge.
+Universal Agent Memory (UAM) is a layered memory protocol shared by Claude, Codex, and future agents. It separates project-local facts, tool-specific adapters, and curated long-term human knowledge.
 
-## Three-Layer Authority Model
+## Authority Model
 
 1. **Project local memory**: `<project>/memory-hub/`
    - Authority for project-specific status, plans, decisions, lessons, reviews, and architecture maps.
@@ -12,14 +12,14 @@ Universal Agent Memory (UAM) is a layered memory protocol shared by Claude, Code
 2. **Agent system adapters**: `~/.claude/` and `~/.codex/`
    - Tool-specific runtime roots for Claude and Codex.
    - May contain rules, skills, caches, sessions, or local memory stores.
-   - Not the final authority for cross-project long-term knowledge.
+   - Are installation/cache/import targets, not the final authority for project facts.
 
 3. **Long-term knowledge vault**: `E:\个人仓库\03_Knowledge\记忆中枢\`
    - Authority for reusable, cross-project, long-term knowledge.
    - Receives curated entries from project `memory-hub/` records through memory bridge.
-   - Should stay human-readable and Obsidian-friendly.
+   - Must stay human-readable, desensitized, and Obsidian-friendly.
 
-`E:\claude-config-master\memory-hub\` is the shared protocol and config-repo operational index. It stores UAM rules, migration status, routing manifests, and config-level decisions. It is not a dumping ground for every project fact.
+`E:\claude-config\memory-hub\` is the shared protocol and config-repo operational index. It stores UAM rules, migration status, routing manifests, and config-level decisions. It is not a dumping ground for project facts.
 
 ## Read Protocol
 
@@ -27,17 +27,50 @@ Read in layers to conserve tokens:
 
 1. Read the local project rule file first (`AGENTS.md`, `CLAUDE.md`, or equivalent).
 2. If `<project>/memory-hub/MEMORY.md` exists, read it as the project short index.
-3. If the task needs tool/config migration context, read `E:\claude-config-master\memory-hub\MEMORY.md`.
+3. If the task needs tool/config migration context, read `E:\claude-config\memory-hub\MEMORY.md`.
 4. If the task needs reusable long-term knowledge, search or read the relevant section under `E:\个人仓库\03_Knowledge\记忆中枢\`.
-5. Use manifests or indexes to open only relevant detail files. Do not load all memory directories by default.
+5. Open only relevant detail files. Do not load all memory directories by default.
+
+## Hot / Warm / Cold Layers
+
+| Layer | Location | Purpose | Default read |
+|---|---|---|---|
+| Hot | `MEMORY.md` | Startup index with active pointers only | Yes |
+| Warm | `arch/`, `status/`, `decisions/`, `lessons/`, `reviews/`, `refs/`, `conflicts/` | Task-specific detail assets | No |
+| Cold | `_archive/` | Deprecated, superseded, or low-frequency history | No |
+
+## Write Admission
+
+Write memory only when the information is durable enough to affect future work.
+
+Must write:
+
+- Irreversible or high-cost decisions, such as architecture boundaries, authority sources, object grain, or capability ownership.
+- Repeated mistakes or high rework-risk lessons.
+- Current blockers, phase transitions, or confirmed business/technical definitions.
+- Rules that directly affect future agent routing, skill invocation, validation, or registry/build behavior.
+
+May write, but do not add to `MEMORY.md` by default:
+
+- Ordinary review reports.
+- One-off approach comparisons.
+- Stage snapshots.
+- Tool run records and validation summaries.
+
+Do not write:
+
+- Git/file-change流水、temporary command output, or raw transcripts.
+- Unaccepted ideas, speculation, or brainstorming residue.
+- Directory/function/config lists that can be read directly from source files.
+- Credentials, tokens, private keys, personal private data, local runtime state, histories, daemon state, caches, SQLite state, or `settings.local`.
 
 ## Write Protocol
 
 Choose the target by scope:
 
 1. **Project-specific facts** go to `<project>/memory-hub/`.
-2. **Reusable cross-project lessons or methods** first get written locally with `bridge: true`, then memory bridge curates them into `E:\个人仓库\03_Knowledge\记忆中枢\`.
-3. **Config system decisions** for Claude/Codex migration go to `E:\claude-config-master\memory-hub/`.
+2. **Reusable cross-project lessons or methods** first get written locally only when they pass admission, then may be marked `bridge: true`.
+3. **Config system decisions** for Claude/Codex migration go to `E:\claude-config\memory-hub/`.
 4. **Tool runtime state** stays in `~/.claude/` or `~/.codex/` and must not be promoted unless it becomes durable knowledge.
 
 Before writing memory:
@@ -46,13 +79,14 @@ Before writing memory:
 2. Update existing memory when possible instead of creating fragments.
 3. If a new fact conflicts with an active memory, create or update a conflict record instead of silently overwriting.
 4. Keep detail files concise. Prefer conclusions, constraints, and pointers over transcripts.
-5. Update the applicable `MEMORY.md` and manifest/index after adding or changing active memory.
+5. Update `MEMORY.md` only for hot active pointers; ordinary warm records do not need startup-index entries.
 
 ## Project Memory Directory Model
 
 A project `memory-hub/` should use:
 
 - `MEMORY.md`: project short index.
+- `MEMORY-SPEC.md`: project-specific memory rules when needed.
 - `decisions/`: project decisions, policies, architecture choices.
 - `lessons/`: repeated mistakes, fixes, feedback, operational lessons.
 - `status/`: project status, plans, milestones.
@@ -60,20 +94,17 @@ A project `memory-hub/` should use:
 - `reviews/`: review reports and durable review findings.
 - `conflicts/`: unresolved memory conflicts.
 - `_archive/`: deprecated or retired memory.
-- `manifests/`: machine-readable indexes and source maps.
+- `manifests/`: machine-readable indexes and source maps, when useful.
 
-## Long-Term Vault Model
+Do not scatter detail records in the root. Root should normally contain only `MEMORY.md`, `MEMORY-SPEC.md`, and exceptional legacy entry points.
 
-The long-term vault is `E:\个人仓库\03_Knowledge\记忆中枢\`.
+## `MEMORY.md` Rules
 
-Recommended categories:
-
-- `AI与编程/`: reusable AI/coding/tooling lessons.
-- `Skill设计/`: skill, agent, prompt, workflow design knowledge.
-- `项目经验/` or existing project-experience areas: curated project-derived methods.
-- Additional categories may follow the vault's existing Obsidian structure.
-
-Memory bridge should deduplicate, generalize, desensitize, and route project memories into this vault. It should not blindly copy every project record.
+- Keep project `MEMORY.md` short enough for startup; recommended maximum is 20 entries.
+- Prefer one category/entry pointer over listing every historical asset.
+- New review reports do not enter `MEMORY.md` by default.
+- Superseded, archived, resolved, or stale records should not remain hot-index entries.
+- If `MEMORY.md` exceeds the limit, move low-value entries to warm directories or `_archive/`.
 
 ## Frontmatter
 
@@ -83,14 +114,14 @@ Every UAM detail file should start with YAML frontmatter:
 ---
 id: mem-YYYYMMDD-short-name
 title: Human readable title
-type: decision | lesson | status | ref | review | conflict
+type: decision | lesson | status | ref | review | conflict | governance
 scope: project | global | skill | tool
-status: active | draft | deprecated | conflict
+status: active | draft | deprecated | conflict | archived
 source: human | claude | codex | import | mixed
 agents: [claude, codex]
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-bridge: true
+bridge: false
 supersedes: []
 conflicts_with: []
 completeness: complete | partial | stale
@@ -100,13 +131,28 @@ token_policy: index-only | selective-read | full-read-on-demand
 ---
 ```
 
+Minimal project files may use a smaller frontmatter, but must include `name` or `id`, `type`, `created`, and explicit `bridge`.
+
 ## Bridge Rules
 
-- `bridge: true` means the record may be considered for long-term vault curation.
-- `bridge: false` means keep it local.
-- Missing `bridge` defaults to `true` only for project memory records created under UAM.
-- Memory bridge must show candidates and ask for confirmation before writing into `E:\个人仓库\03_Knowledge\记忆中枢\` unless the user explicitly enables an automatic mode.
-- Long-term vault writes must be desensitized and generalized.
+- `bridge: false` is the default.
+- Missing `bridge` must be treated as `false` for new records.
+- `bridge: true` means the record may be considered for long-term vault curation; it does not mean automatic promotion.
+- Set `bridge: true` only when all conditions hold:
+  1. The record is abstracted into a reusable method, principle, or anti-pattern.
+  2. It does not depend on project-private table names, paths, credentials, or local state to be useful.
+  3. It has clear expected value for future projects.
+- Project status, ordinary reviews, one-off snapshots, path fixes, and tool run logs default to `bridge: false`.
+- Memory bridge must show candidates and ask for confirmation before writing into `E:\个人仓库\03_Knowledge\记忆中枢\` unless the user explicitly enables automatic mode.
+- Long-term vault writes must be deduplicated, desensitized, and generalized.
+
+## Review and Snapshot Rules
+
+- L1/light review: prefer conversation output; do not write memory unless the user asks or P0/P1 durable risk is found.
+- L2/L3/deep review: write to `reviews/`, default `bridge: false`.
+- Repeated review of the same target: update the existing report or use `supersedes`; avoid date-based流水.
+- `task-snapshot` defaults to text output only. It writes memory only for phase transition, irreversible decision, repeated lesson, authority-source change, or explicit user request.
+- Snapshot method insights are candidate deposits, not automatic new memory files.
 
 ## Conflict Rules
 
@@ -115,13 +161,16 @@ token_policy: index-only | selective-read | full-read-on-demand
 - `conflicts_with` means both records exist and require review.
 - A conflict is resolved only when the replacement memory names what it supersedes and why.
 
-## Token Budget Rules
+## Archive Rules
 
-- Read short indexes first.
-- Use manifests and exact paths for detail reads.
-- Avoid full memory tree loading.
-- Keep project indexes short enough for quick startup.
-- Long-term vault entries should summarize principles and link back to source project memory when useful.
+Archive instead of deleting when historical trace may still matter:
+
+- Decisions superseded by newer decisions.
+- Reviews that are complete and no longer drive current work.
+- Old phase status records.
+- Legacy templates or rules that conflict with the active model.
+
+Place archived records under `_archive/` or mark `status: archived` with a clear `superseded_by` pointer.
 
 ## Compatibility
 
@@ -129,4 +178,4 @@ Claude and Codex clients must point to this layered model:
 
 - Claude adapter: `~/.claude/CLAUDE.md` and repo `CLAUDE.md`.
 - Codex adapter: `~/.codex/AGENTS.md` and repo `codex/AGENTS.md`.
-- Project adapters: project `AGENTS.md` / `CLAUDE.md` should prefer local `memory-hub/` and bridge durable knowledge upward.
+- Project adapters: project `AGENTS.md` / `CLAUDE.md` should prefer local `memory-hub/` and bridge only curated durable knowledge upward.

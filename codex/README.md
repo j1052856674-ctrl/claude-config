@@ -21,3 +21,11 @@ This directory contains Codex-specific adapters derived from the Claude configur
 ## Deployment Principle
 
 Treat this directory as a staging and installation source. Review changes here before deploying to `~/.codex`.
+
+## Maintenance Notes
+
+- Root `skills/` is the Claude source; `codex/skills/` is the Codex adapter source.
+- For shared skill behavior, keep both sides semantically aligned. Codex-only notes may stay under `codex/skills/`.
+- Global memory protocol is not duplicated here; both Claude and Codex reference repository root `memory-hub/`.
+- After changing shared rules, check both `CLAUDE.md` and `codex/AGENTS.md`.
+- Deploy to Codex with `.\codex\sync-codex.ps1 deploy` on PowerShell or `bash codex/sync-codex.sh deploy` in bash.

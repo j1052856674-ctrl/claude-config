@@ -1,112 +1,141 @@
-# 记忆文件格式规范
+# 记忆沉淀规范 v2.0
 
-> 本文件是全局 CLAUDE.md 记忆管理行为约束（原第十四节）的详细规格，从 CLAUDE.md 提取以节省上下文。
-> CLAUDE.md 中只保留行为约束，具体格式要求见本文件。
-> 版本：v1.0 / 2026-06-11
+> 本文件是部署到 `~/.claude/memory/MEMORY-SPEC.md` 的 Claude 运行态规范副本。
+> 权威协议源为仓库 `memory-hub/MEMORY-SPEC.md`；若项目存在 `<project>/memory-hub/MEMORY-SPEC.md`，以项目规范为准。
 
-## 一、目录结构
+## 一、权威层级
 
-`.claude/memory/` 下按类型分子目录：
+| 层级 | 位置 | 作用 |
+|---|---|---|
+| 项目权威层 | `<project>/memory-hub/` | 项目事实、状态、决策、踩坑、评审资产 |
+| Runtime 适配层 | `~/.claude/`、`~/.codex/`、旧 `.claude/memory/` | 安装目标、缓存、导入源 |
+| 长期知识库 | `E:\个人仓库\03_Knowledge\记忆中枢\` | 跨项目复用知识，经 memory-bridge 精选沉淀 |
+| 配置协议层 | `E:\claude-config\memory-hub/` | Claude/Codex 配置协议、迁移状态、系统级决策 |
 
-| 子目录 | metadata.type | 存放内容 |
-|--------|--------------|---------|
-| `lessons/` | `feedback` | 踩坑/bugfix/用户反馈 |
-| `decisions/` | `project` | 技术决策/设计选择 |
-| `status/` | `project` | 项目状态/计划/里程碑 |
-| `reviews/` | `review` | 评审框架/质量标准 |
-| `refs/` | `reference` | 外部参考/工具配置 |
-| `arch/` | *(同 project)* | 架构子图 |
-| `_archive/` | *(任意)* | 已淘汰记忆 |
+项目工作优先读写项目本地 `memory-hub/`。不要把项目事实长期写入 runtime 目录。
 
-**强制**：首次创建 `.claude/memory/` 时必须预建全部 7 个子目录（即使是空目录）。禁止按需创建导致文件散放根目录。
+## 二、Hot / Warm / Cold 分层
 
-**例外**：`MEMORY.md` 和 `architecture-map.md` 可放根目录。
+| 层级 | 位置 | 用途 | 默认读取 |
+|---|---|---|---|
+| Hot | `MEMORY.md` | 新 session 启动入口，只放仍有效的核心指针 | 是 |
+| Warm | `arch/`、`status/`、`decisions/`、`lessons/`、`reviews/`、`refs/`、`conflicts/` | 任务相关详情资产 | 否 |
+| Cold | `_archive/` | 过期、被替代、低频历史资产 | 否 |
 
-## 二、文件格式
+## 三、写入准入
 
-### Frontmatter 必须字段
+只在信息会影响未来工作时写入记忆。
+
+必须写入：
+
+- 不可逆或高成本决策，例如架构边界、权威事实源、对象粒度、能力归属。
+- 重复踩坑或高返工风险经验。
+- 当前阻塞项、阶段切换、已确认的业务/技术口径。
+- 会影响后续 Agent 路由、Skill 调用、验证或构建的规则。
+
+可以写入但默认不进 `MEMORY.md`：
+
+- 普通评审报告。
+- 一次性方案比较。
+- 阶段性快照。
+- 工具运行记录和验证摘要。
+
+不要写入：
+
+- Git/file-change 流水、临时命令输出、原始对话摘录。
+- 未采纳的想法、临时推测、普通 brainstorm 残留。
+- 可从源文件直接读取的目录、函数、配置清单。
+- API Key、密码、令牌、私钥、个人隐私、本地 runtime 状态、history、daemon、cache、SQLite、`settings.local`。
+
+## 四、目录结构
+
+项目 `memory-hub/` 推荐结构：
+
+- `MEMORY.md`：项目短索引。
+- `MEMORY-SPEC.md`：项目特有记忆规范。
+- `decisions/`：决策、政策、架构选择。
+- `lessons/`：重复踩坑、修复、反馈、操作经验。
+- `status/`：状态、计划、里程碑。
+- `reviews/`：评审报告和持久评审发现。
+- `refs/`：外部参考和工具说明。
+- `conflicts/`：未解决记忆冲突。
+- `_archive/`：废弃或归档记忆。
+- `manifests/`：机器可读索引，按需创建。
+
+禁止在根目录散放详情文件。根目录通常只放 `MEMORY.md`、`MEMORY-SPEC.md` 和极少数历史入口。
+
+## 五、Frontmatter
+
+完整 UAM 详情文件建议使用：
 
 ```yaml
 ---
-name: <同文件名无扩展名>
-description: <≤50字>
-metadata:
-  type: project | feedback | reference | review   # 禁止项目自定义
-  created: YYYY-MM-DD
-  updated: YYYY-MM-DD
-  bridge: true | false
+id: mem-YYYYMMDD-short-name
+title: Human readable title
+type: decision | lesson | status | ref | review | conflict | governance
+scope: project | global | skill | tool
+status: active | draft | deprecated | conflict | archived
+source: human | claude | codex | import | mixed
+agents: [claude, codex]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+bridge: false
+supersedes: []
+conflicts_with: []
+completeness: complete | partial | stale
+confidence: high | medium | low
+needs_review: false
+token_policy: index-only | selective-read | full-read-on-demand
 ---
 ```
 
-**禁止创建无 frontmatter 的记忆文件。**
+项目轻量文件可简化，但必须包含 `name` 或 `id`、`type`、`created`、显式 `bridge`。
 
-### 可选字段
+## 六、`bridge` 规则
 
-- `related`：双链关联，如 `[[other-memory-name]]`
-- `supersedes`：合并时记录被取代的旧文件名
+- `bridge: false` 是默认值。
+- 新记录缺失 `bridge` 时按 `false` 处理。
+- `bridge: true` 只表示可作为长期知识库候选，不代表自动提升。
+- 只有同时满足以下条件才设 `bridge: true`：
+  1. 已抽象成跨项目可复用的方法、原则或反模式。
+  2. 不依赖项目私有表名、字段名、路径、凭据或本地状态。
+  3. 对未来项目有明确复用价值。
 
-### 废弃字段（禁止使用）
+项目状态、普通 review、一次性 snapshot、路径修复、工具运行日志默认 `bridge: false`。
 
-- `node_type`、`originSessionId`、`date`（与 `created` 重叠）
+## 七、索引规则
 
-## 三、长度限制
+- 项目 `MEMORY.md` 只保留启动必读指针，建议不超过 20 条。
+- 优先放分类入口，而不是逐条列出所有历史资产。
+- 新 review 不默认进 `MEMORY.md`。
+- `superseded`、`archived`、`resolved`、`stale` 记录不应留在热索引。
 
-- 任何记忆文件不超过 **200 行**
-- `architecture-map.md`（架构总图）不超过 **150 行**
-- `reviews/` 下评审框架允许 200 行，超限也需评估拆分
+## 八、评审与快照
 
-**超限时压缩优先级**：删除过程细节保留结论 > 模块拆分 > 折叠已完成内容。
+- L1/light review：优先在对话中输出，不写 memory，除非用户要求或发现 P0/P1 长期风险。
+- L2/L3/deep review：写入 `reviews/`，默认 `bridge: false`。
+- 同一对象重复评审：更新已有报告或使用 `supersedes`，避免日期流水。
+- `task-snapshot` 默认只输出文本。只有阶段切换、不可逆决策、重复踩坑、权威源变化或用户明确要求时才写入记忆。
+- snapshot 的方法论收获是候选沉淀，不自动为每条新建文件。
 
-## 四、合并规则
+## 九、归档规则
 
-同目录 + 同主题的记忆必须合并到已有文件，禁止创建 v2 后缀版本文件。
+归档而非删除：
 
-合并时旧文件的 `name` 写入新文件的 `supersedes` 字段。
+- 被新决策替代的旧决策。
+- 已完成且不再驱动当前工作的 review。
+- 旧阶段状态。
+- 与当前协议冲突的旧模板或旧规则。
 
-## 五、索引管理
+归档位置为 `_archive/`，或设置 `status: archived` 并写明 `superseded_by`。
 
-`MEMORY.md` 索引条目不超过 **20 条**。超限时淘汰优先级：
-1. `_archive/` 中文件直接删除索引
-2. `bridge: false` 文件评估淘汰
-3. 最久未更新文件归档
+## 十、写入检查清单
 
-路径格式：`- [标题](子目录/文件名.md) — 摘要`
+写入前依次检查：
 
-索引文件无 frontmatter，纯 Markdown 列表。
-
-## 六、生命周期
-
-```
-写入 → 更新 → 归档 → 淘汰
-```
-
-| 阶段 | 操作 |
-|------|------|
-| 写入 | 新记忆入对应子目录，`bridge` 默认 `true` |
-| 更新 | 合并同主题，更新 `updated` 字段 |
-| 归档 | 尾部加 `## 归档` 段落，`bridge` 改 `false` |
-| 淘汰 | 移入 `_archive/`，从 MEMORY.md 删除索引 |
-
-禁止只有写入没有淘汰。
-
-## 七、bridge 字段
-
-- 新记忆文件 `bridge` 默认为 `true`
-- 仅在明确判断"无跨项目复用价值"时设 `false`
-- 缺失 `bridge` 字段等同于 `true`（仅 `MEMORY.md` 索引文件允许缺失）
-
-## 八、写入检查清单
-
-每次写入记忆文件前必须依次执行：
-1. type 确定 → 子目录映射
-2. 主题查重（同目录搜索合并）
-3. frontmatter 齐全检查
-4. 长度预估
-5. 索引更新
-6. 上限检查（≥20 条则淘汰低价值条目）
-
-禁止跳过检查清单直接写入。
-
-## 九、memory-bridge 兼容
-
-memory-bridge 拉取记忆时必须递归读取所有子目录（含 `_archive/`），自动跳过 `bridge: false` 和 `_archive/` 中的文件。路径从 `文件名.md` 适配为 `子目录/文件名.md`。
+1. 是否满足写入准入。
+2. 是否已有同主题记忆可更新。
+3. 是否会与现有记忆冲突。
+4. 是否包含敏感信息或 runtime 状态。
+5. `bridge` 是否显式且符合规则。
+6. 是否真的需要进入 `MEMORY.md` 热索引。
