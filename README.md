@@ -35,11 +35,12 @@ claude-config/
 │   ├── code-reviewer/
 │   └── contract-validator/
 │
-├── skills/                      # 22 个自建 Skill
+├── skills/                      # 19 个自建 Skill
 │   ├── deep-review/             # 深度评审（四阶段）
 │   ├── prd-v3/                  # PRD 生成 v3
 │   ├── frontend/                # 前端生成 v3
-│   ├── ...（共 22 个）
+│   ├── sync-agent-config/       # Claude/Codex 配置同步工作流
+│   ├── ...（共 19 个）
 │
 ├── commands/                    # 自定义命令
 │   └── auto-mode.md
@@ -88,7 +89,7 @@ bash sync.sh deploy
 |------|------|
 | Agent 定义 | 7 |
 | Agent 知识库文件 | ~18 |
-| Skill | 22 |
+| Skill | 19 |
 | 系统记忆 | 2 |
 
 ## 维护

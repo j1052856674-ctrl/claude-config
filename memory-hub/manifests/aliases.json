@@ -1,10 +1,12 @@
 ﻿{
   "version": "1.0",
-  "updated": "2026-06-14",
+  "updated": "2026-06-23",
   "aliases": {
     "~/.claude/MEMORY.md": "memory-hub/MEMORY.md",
     "~/.claude/memory": "memory-hub (import source only)",
-    "E:/claude-config-master/memory": "memory-hub (legacy source)",
-    "E:/claude-config-master/.claude/memory": "memory-hub (legacy source)"
+    "E:/claude-config/memory": "memory-hub (legacy source)",
+    "E:/claude-config/.claude/memory": "memory-hub (legacy source)",
+    "E:/claude-config-master/memory": "legacy path before repository rename",
+    "E:/claude-config-master/.claude/memory": "legacy path before repository rename"
   }
 }

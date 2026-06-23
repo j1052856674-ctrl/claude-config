@@ -1,8 +1,8 @@
 {
   "version": "1.0",
-  "updated": "2026-06-14",
+  "updated": "2026-06-23",
   "authority_model": "layered-memory-authority",
-  "config_hub": "E:\\claude-config-master\\memory-hub",
+  "config_hub": "E:\\claude-config\\memory-hub",
   "long_term_vault": "E:\\个人仓库\\03_Knowledge\\记忆中枢",
   "global": [
     "decisions/layered-memory-authority.md",

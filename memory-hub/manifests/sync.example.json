@@ -1,6 +1,6 @@
 ﻿{
   "version": "1.0",
-  "memory_hub": "E:\\claude-config-master\\memory-hub",
+  "memory_hub": "E:\\claude-config\\memory-hub",
   "clients": {
     "claude": {
       "global_rules": "~\\.claude\\CLAUDE.md",

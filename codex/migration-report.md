@@ -31,7 +31,6 @@ High-value but needs adaptation:
 - `deep-review`
 - `agent-builder`
 - `auto-mode` as a formal skill
-- `memory-bridge`
 
 Complex and deferred:
 
@@ -54,7 +53,7 @@ It does not touch auth, config, logs, SQLite state, sessions, caches, or sandbox
 
 ## Validation Notes
 
-- `codex/` currently contains 8 migrated skills and 7 converted agent prompt templates.
+- `codex/` currently contains 15 deployed skills and 7 converted agent prompt templates.
 - `sync-codex.ps1 status` works on this Windows machine.
 - `sync-codex.sh` is kept for Bash-compatible environments, but Windows drive path mapping may require running it from an environment where `E:` is mounted.
 - Keyword scan found remaining Claude-specific references inside migrated prompts/references/skills. These are expected in the staging copy and should be adapted before final deployment if they affect runtime behavior.
@@ -119,3 +118,16 @@ Adjusted the memory model to three layers:
 `E:\claude-config-master\memory-hub\` now acts as the protocol/config migration index, not as the dumping ground for all project memory.
 
 Updated UAM spec, Claude/Codex adapters, `memory-bridge`, `task-snapshot`, `deep-review`, and `review-fix-verify` in both repository staging and active runtime roots.
+
+## 2026-06-23 System Entry and Sync Skill Update
+
+Synchronized the refreshed self-contained global entrypoints and memory trigger workflow:
+
+- `CLAUDE.md`
+- `codex/AGENTS.md`
+- `skills/memory-bridge/SKILL.md`
+- `codex/skills/memory-bridge/SKILL.md`
+
+Added and deployed `sync-agent-config` to capture the recurring workflow for syncing Claude/Codex config assets, runtime roots, and GitHub publication.
+
+Current Codex runtime skill count after this update: 16.

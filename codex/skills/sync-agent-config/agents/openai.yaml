@@ -1,0 +1,4 @@
+interface:
+  display_name: "同步 Agent 配置"
+  short_description: "同步 Claude/Codex 配置到 GitHub"
+  default_prompt: "Use $sync-agent-config to sync updated Claude and Codex rules, skills, runtime assets, and GitHub publication."

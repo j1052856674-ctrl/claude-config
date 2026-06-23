@@ -7,7 +7,7 @@ status: active
 source: codex
 agents: [claude, codex]
 created: 2026-06-14
-updated: 2026-06-14
+updated: 2026-06-23
 supersedes: []
 conflicts_with: []
 completeness: complete
@@ -21,8 +21,9 @@ token_policy: index-only
 Existing Claude memory locations are source material for UAM:
 
 - `~\.claude\memory\`
-- `E:\claude-config-master\memory\`
-- `E:\claude-config-master\.claude\memory\`
+- `E:\claude-config\memory\`
+- `E:\claude-config\.claude\memory\`
+- Historical path aliases under `E:\claude-config-master\` remain import clues only if found on an older machine.
 
 They should not be treated as the final authority after equivalent records exist in `memory-hub/`.
 

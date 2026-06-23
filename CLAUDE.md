@@ -2,6 +2,8 @@
 
 > 全局 AI agent 行为约束，对所有项目生效。
 > 优先级：系统规则 > 用户当前指令 > 本文件 > 项目 CLAUDE.md。
+>
+> 维护说明：本文件是 Claude 的全局系统规范入口，必须保留完整规则正文。`E:\日常仓库\05_Templates\知识库规范\Agent通用协作协议.md` 是跨平台抽象协议，用于同步 Codex/Claude/Agent 的共同口径，但不能替代本文件。
 
 ## 一、沟通与决策
 
@@ -86,6 +88,22 @@
 
 41. **规则与事实分离**：CLAUDE.md 只记行为约束（违反会造成返工或风险的规则）；MEMORY.md 记事实和偏好（指导决策但不强制）。**禁止在 CLAUDE.md 中写入不属于行为约束的偏好信息。**
 
+### 记忆检索硬触发
+
+遇到以下任一场景，必须先使用 `memory-bridge` 或读取项目 `memory-hub`，不能只凭印象继续：
+
+| 触发信号 | 默认动作 |
+|---|---|
+| 用户说“继续上次”“之前”“类似”“按我们的规范”“有没有踩过坑” | `memory-bridge search` |
+| 用户问“这个项目做到哪了”“恢复上下文”“接着做” | 读 `memory-hub/MEMORY.md`，再 `memory-bridge search` |
+| 同一问题失败两次、测试反复失败、出现重复 bug | `memory-bridge search` 查已知踩坑 |
+| 任务涉及迁移、架构调整、规则修改、AGENTS/CLAUDE/SKILL 修改 | `memory-bridge search` 查相关决策和触发卡 |
+| 用户说“看看记忆现状”“哪些该迁”“哪些该沉淀” | `memory-bridge scan` |
+| 用户说“建立 memory-hub”“迁移旧记忆” | `memory-bridge migrate`，写入前确认 |
+| 用户说“同步记忆”“沉淀到记忆中枢” | `memory-bridge sync`，写入前确认 |
+
+`migrate` 和 `sync` 会写文件，必须先展示候选和风险，获得明确确认后再执行。若不确定模式，默认 `scan`。
+
 ## 十一、代码探索效率
 
 42. **架构图先行（代码项目）**：进入代码项目新对话时，先检查项目 `memory-hub/` 是否有 `architecture-map` 或等价架构记忆。如果有，优先读取该文件获取代码架构知识，仅在文件缺失或信息不足时才启动探索 Agent。**禁止忽略已有架构图而重新全量探索代码库。**
@@ -100,7 +118,7 @@
 
 45. **新项目强制启动流程**：首次进入一个项目目录时，必须按以下顺序建立上下文，禁止跳步直接执行：
 
-```
+```text
 Step 1: 读项目 CLAUDE.md / AGENTS.md → 了解规则、架构、禁止项
 Step 2: 读项目 memory-hub/MEMORY.md → 知道有哪些记忆文件
 Step 3: 读 architecture-map（或同名架构图记忆） → 掌握项目全貌、文件地图、核心模块
@@ -126,7 +144,7 @@ Step 5: 开始工作 → 先说明目标和路径，再动手
 
 48. **改规则三步强制流程**：任何涉及规则、配置、逻辑的修改，必须走完三步，禁止跳过任何一步：
 
-```
+```text
 Step A: 改权威源 → 修改权威源文件（config.py / scorer.py / Skill文件 等）
 Step B: 同步摘要 → 更新所有引用该配置的摘要/文档
 Step C: 验证 + 记录 → 跑测试/语法检查/编译 → 更新项目 memory-hub/ 记忆
@@ -173,7 +191,9 @@ depends_on:
     purpose: PRD 评审
 ```
 
-57. **能力归属矩阵优先**：引入新 Skill 或扩展现有 Skill 能力前，先查项目或配置协议 hub 中的 `memory-hub/decisions/skill-capability-ownership.md`。如果归属矩阵中已有该能力的权威 Skill，必须编排它而非重新实现。如果归属矩阵中没有，在矩阵中注册后再实现，避免后续重复。依赖关系（depends_on）以各 SKILL.md frontmatter 为唯一权威源，矩阵不重复记录。## 十六、Subagent 上下文传递
+57. **能力归属矩阵优先**：引入新 Skill 或扩展现有 Skill 能力前，先查项目或配置协议 hub 中的 `memory-hub/decisions/skill-capability-ownership.md`。如果归属矩阵中已有该能力的权威 Skill，必须编排它而非重新实现。如果归属矩阵中没有，在矩阵中注册后再实现，避免后续重复。依赖关系（depends_on）以各 SKILL.md frontmatter 为唯一权威源，矩阵不重复记录。
+
+## 十六、Subagent 上下文传递
 
 > **Context Card** 是 agent 定义中预设的机制——orchestrator 派发 worker 时自动传入项目上下文。但用 `Agent` 工具直接启动 subagent 时，Context Card 不会被注入，agent 处于"上下文饥饿"状态。
 >
@@ -194,7 +214,7 @@ depends_on:
     - 上述任一为"是"，则 context 块不能省略。
 
 60. **Context Card 最小模板**：直接启动 subagent 时，prompt 格式：
-    ```
+    ```text
     ## Project Context
     - 项目：{name}（{类型}）
     - 阶段：{phase}
