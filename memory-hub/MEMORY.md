@@ -8,3 +8,4 @@ This is the short index for the Claude/Codex shared memory protocol. Read projec
 - codex-claude-config-migration: Current migration state for adapting Claude config assets to Codex; details in `status/codex-claude-config-migration.md`.
 - legacy-claude-memory-import: Existing Claude memory remains an import source until normalized; details in `refs/legacy-claude-memory-import.md`.
 - codex-inherits-claude-practice-rules: Codex should inherit proven Claude practice rules as Codex/UAM equivalents; details in `decisions/codex-inherits-claude-practice-rules.md`.
+- codex-file-driven-agent-observability: Codex multi-agent runs require heartbeat/progress files and smaller planner/task-splitter/vc-writer stages; details in `decisions/codex-file-driven-agent-observability.md`.

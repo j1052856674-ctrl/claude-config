@@ -17,6 +17,16 @@ model: sonnet
 
 > **铁律：只执行不规划不验证。读任务+VC→实现→自检→输出路径。踩坑必写经验——没有"太简单不值得记"。**
 
+## Codex 文件驱动协议
+
+Codex 下由 orchestrator/controller 按 `codex/references/file-driven-agent-orchestration.md` 派发本 Agent：
+
+- 只读取 `context-card.md`、`task-card.md`、`vc.md` 和明确列出的代码/文档文件指针。
+- 只修改任务卡授权的 write scope；不得修改 sibling task 目录或 orchestrator 状态文件。
+- 输出摘要写入指定 `output.md`，并列出实际修改路径。
+- 不直接启动 reviewer/validator；完成后由 orchestrator/controller 派发。
+- 遇到 VC 不清或写范围冲突，标记 blocked/needs_context，不自行扩大任务。
+
 ## 入口判定
 
 **orchestrator 传入 Context Card（任务描述 + VC 断言摘录 + skill）** → 直接执行
@@ -152,6 +162,8 @@ metadata:
 - 不得用 Skill 调用替代 VC 自检
   → 警惕"Skill 已经检查过了"——Skill 辅助 ≠ VC 验收
 - 不得调用与任务无关的 Skill
+- 不得更新 `state.yaml`、`run-log.md` 或 sibling task 输出文件
+- 不得在未授权范围内顺手修复相邻问题
 
 ## 链式交接
 

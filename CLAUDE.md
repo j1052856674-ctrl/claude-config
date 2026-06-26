@@ -1,4 +1,4 @@
-# Agent 协作准则 v1.5
+# Agent 协作准则 v1.6
 
 > 全局 AI agent 行为约束，对所有项目生效。
 > 优先级：系统规则 > 用户当前指令 > 本文件 > 项目 CLAUDE.md。
@@ -227,6 +227,25 @@ depends_on:
     ```
     **Why**：~200 tokens 的 context 块让 subagent 能利用已有决策、不重复踩坑、产出与项目一致的输出。
     **How to apply**：每次调用 `Agent` 工具时，上面的 Project Context 块必须出现。缺省视为 launch 不完整。
+
+## 十七、Dedicated Orchestrator
+
+61. **长流程优先启动独立 orchestrator**：遇到多 Agent、文件驱动 run、PRD/方案→计划→实现→评审→验证、批处理、或预计 3 个以上阶段的非平凡任务时，主会话必须优先启动 dedicated orchestrator 子代理，除非用户明确要求只在主会话内处理。
+62. **运行时角色与语义角色分离**：Claude `Agent` 工具可以选择 `orchestrator` 等 agent type；启动时必须在 prompt 前 200 tokens 内写明 `Semantic role: orchestrator`、项目 Context Card、run 目录和可写范围。
+63. **主会话只做 transport/controller**：主会话负责读取启动规则、创建或恢复 run 目录、启动/恢复 orchestrator、执行 orchestrator 写出的 dispatch request、转发用户新约束、处理工具权限与最终汇报。主会话不得在长流程中自行长期持有 workflow brain 或绕过 orchestrator 重写任务体系。
+64. **orchestrator 是 workflow brain**：orchestrator 子代理必须读取或遵守项目 `orchestrator.md` 规则，负责维护 `state.yaml`、`run-log.md`、`blocked-items.md`、`decisions.md` 和 dispatch 文件，拆分任务、维护门禁、生成下一批调度建议；不得直接实现代码或正文产物。
+65. **orchestrator 必须可观测**：启动后 60 秒内必须写入自己的 `heartbeat.md`；中大型编排 3 分钟内必须写入 `dispatch.md`、`progress.md` 或等价草稿。无心跳视为启动/提示词问题；有心跳但无调度产物时，优先 `SendMessage` resume 收敛。
+66. **用户打断转发规则**：长流程运行中收到用户新约束、纠错或暂停要求时，主会话应将新信息追加到 run 日志或发送给 dedicated orchestrator，由 orchestrator 更新 workflow；除紧急安全/破坏性操作拦截外，主会话不直接改写下游任务计划。
+67. **主会话必须执行 controller loop**：一旦 dedicated orchestrator 已启动，主会话必须进入 controller loop：读取 `orchestrator/status.md` 与 `dispatch.md`、执行当前批次、将子任务结果回传 orchestrator、等待 orchestrator 更新下一批，再继续。不得因为单个子任务完成就默认停机。
+68. **只有 terminal state 才能停机**：当且仅当 orchestrator 在 `orchestrator/status.md` 中写出 `completed`、`blocked`、`human_required` 或 `paused` 之一时，主会话才可结束该多 Agent 流程；否则默认 workflow 仍然存活。
+69. **status 文件是 controller 的事实源**：专用编排目录中的 `orchestrator/status.md` 是主会话判断"继续 dispatch / 等子任务 / 等 orchestrator / 停机"的短事实源。若 dispatch 与聊天状态不一致，以最新文件状态为准并优先修正 run 文件。
+
+## 十八、系统级文件维护
+
+70. **系统级入口必须自包含**：`C:\Users\fanjiang\.codex\AGENTS.md` 和 `C:\Users\fanjiang\.claude\CLAUDE.md` 都是各自工具可能自动读取的入口，不能只写外部文件指针。
+71. **通用协议是同步参考**：`E:\日常仓库\05_Templates\知识库规范\Agent通用协作协议.md` 用于跨平台抽象、对照和同步，不替代系统级入口正文。
+72. **修改顺序**：规则变化时，先判断属于 Codex 系统规范、Claude 系统规范、项目规则还是跨平台抽象；再分别更新对应系统级入口、项目入口和通用协议。
+73. **防止双写分叉**：系统级入口可以各自自包含，但同类规则变更后必须搜索并同步另一侧对应规则或明确记录差异原因。
 
 ## Universal Agent Memory Adapter
 

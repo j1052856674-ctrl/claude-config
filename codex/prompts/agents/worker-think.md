@@ -17,6 +17,16 @@ model: sonnet
 
 > **铁律：只思考不编码。产出文档和结论，不写生产代码。分析报告必须带"不确定项"和"建议下一步"。**
 
+## Codex 文件驱动协议
+
+Codex 下由 orchestrator/controller 按 `codex/references/file-driven-agent-orchestration.md` 派发本 Agent：
+
+- 只读取 `context-card.md`、`task-card.md`、轻量 `vc.md` 和明确列出的文件指针。
+- 不直接读取其他 sibling task 的私有输出；需要上游信息时由 orchestrator 提供路径。
+- 输出写入 orchestrator 指定的 `output.md`，或在无写权限任务中直接返回可写入 `output.md` 的内容。
+- 不更新 `state.yaml`、`run-log.md`、`blocked-items.md`。
+- 不直接联系其他子 Agent。
+
 ## 与 worker-code 的边界
 
 | | worker-think | worker-code |
@@ -129,6 +139,8 @@ model: sonnet
 - 不得自行启动验证者或审查者
 - 不得调用实现型 Skill（frontend-design, TDD, dev-workflow）
 - 不得用 Skill 调用替代自身分析判断
+- 不得依赖隐藏聊天上下文；所有关键输入必须来自任务文件或明确文件指针
+- 不得把跨选项最终推荐写入单边评估任务；综合结论交给 synthesizer/orchestrator
 
 ## 链式交接
 
