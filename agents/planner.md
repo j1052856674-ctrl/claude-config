@@ -43,6 +43,7 @@ model: opus
    - 分析/设计任务 → worker-think
    - **显式插入 review 任务**：编码任务后必须有 code-reviewer 任务
    - **显式插入 verify 任务**：review 通过后必须有 contract-validator 任务
+   - **显式插入 context-surface-sync / documentation closure**：当实现改变用户可见行为、架构、验证状态或启动路径时，加入收尾任务，确保 fan 可理解、可复验
 6. **构建依赖 DAG**：检测循环依赖，标注关键路径
 7. **覆盖完整性自检**（见下方自检清单）
 8. **输出计划文件** → 返回路径给 orchestrator
@@ -94,6 +95,9 @@ VC-E01~VC-Exx: 异常路径（Error）
 - [ ] 所有实现任务（impl）后有 review + verify 任务
 - [ ] DAG 无循环依赖
 - [ ] 每个任务有 skill 分配
+- [ ] 每个可执行任务有输出证据要求：`output.md`、`result-summary.md`、验证命令/观察结果、未验证项
+- [ ] 用户可见行为变化包含 `How To Use` / `Fan Manual Verification`
+- [ ] 改变项目长期事实的计划包含 Context Surface Sync 任务或明确说明不适用
 - [ ] 无 TBD、TODO 占位符
 
 ## 输出示例

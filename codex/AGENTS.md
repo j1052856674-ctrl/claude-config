@@ -39,7 +39,7 @@
 21. **测试位置随项目规范**：优先遵循项目已有测试目录和命名规范；没有规范时，再建议建立合理结构。
 22. **无法验证需说明**：如果测试或构建无法运行，必须说明原因、已完成的替代检查和残留风险。
 23. **安全与性能检查**：涉及权限、认证、数据处理、文件操作、并发、网络请求或大规模数据时，主动评估安全与性能影响。
-24. **不声称未做验证**：没有实际运行的测试、构建或检查，不能说“已验证”。
+24. **不声称未做验证**：没有实际运行的测试、构建或检查，不能说“已验证”。完成实现、验证、报告或样例交付时，必须记录准确命令、观察结果、退出码/关键输出；改变用户可见行为时，还必须给出 fan 可自行复验的最小步骤。
 
 ## 五、文件与版本安全
 
@@ -55,7 +55,7 @@
 31. **启动读取顺序**：非平凡任务先读项目 `AGENTS.md`；若项目仅有 `CLAUDE.md`，也要读取。再按需读项目本地 `memory-hub\MEMORY.md`。
 32. **索引优先节约 token**：默认只读短索引；不要全量加载 `memory-hub`、旧 `.claude/memory` 或 Codex 本地 memories。
 33. **旧记忆是来源不是权威**：`~\.claude\memory`、项目 `.claude\memory`、`~\.codex\memories`、旧仓库 `memory/` 只作为导入源或兼容缓存；等价记录进入项目本地 `memory-hub` 或长期知识库后，以新位置为准。
-34. **重大进展写入记忆**：完成关键决策、架构变更、长期任务阶段性成果、重复踩坑修复后，更新 `memory-hub` 对应记录和索引。
+34. **重大进展写入记忆**：完成关键决策、架构变更、长期任务阶段性成果、重复踩坑修复后，更新 `memory-hub` 对应记录和索引。若实现或验证改变了项目当前事实，还应同步 README/AGENTS/architecture/status/reviews 等上下文表面，避免只在聊天或 run artifact 中保留结论。
 35. **冲突显式化**：Claude/Codex 记忆冲突时，写入 `memory-hub\conflicts`，不得静默覆盖或假装已解决。
 36. **记忆文件守规范**：新增或更新记忆必须遵守项目 `memory-hub\MEMORY-SPEC.md` 的 frontmatter、状态、冲突、索引和 token 策略。
 37. **敏感信息禁止入记忆**：API Key、密码、私钥、令牌、Cookie、个人隐私、本地 runtime 状态不得写入共享记忆。
@@ -100,13 +100,14 @@
 51. **编排者不重复实现**：流程型 Skill 只定义串联和调用逻辑，不硬编码被编排 Skill 的细节。
 52. **依赖显式声明**：Skill 之间的依赖应在 `SKILL.md` 或等价文档中显式说明。
 53. **改权威源要同步引用方**：修改 Skill 能力、阶段、输出结构或调用约定时，检查并同步更新依赖方。
+54. **有合适 Skill 就必须用**：若当前任务明确落入已有能力矩阵中的权威 Skill 范围，编排和任务文件中必须显式绑定该 Skill；只有确实不存在合适 Skill 时，才允许不绑定并说明原因。
 
 ## 十、安全红线
 
-54. **敏感信息保护**：不得输出、记录或传播 API Key、密码、私钥、令牌、Cookie、个人隐私等敏感信息。
-55. **主动脱敏**：发现疑似密钥、私钥、访问令牌、连接串等内容时，应脱敏展示或拒绝输出完整内容。
-56. **不绕过安全流程**：不得帮助规避认证、权限、安全检查、合规流程或审计机制。
-57. **最小权限原则**：执行命令、访问文件、修改配置时，仅使用完成任务所需的最小范围。
+55. **敏感信息保护**：不得输出、记录或传播 API Key、密码、私钥、令牌、Cookie、个人隐私等敏感信息。
+56. **主动脱敏**：发现疑似密钥、私钥、访问令牌、连接串等内容时，应脱敏展示或拒绝输出完整内容。
+57. **不绕过安全流程**：不得帮助规避认证、权限、安全检查、合规流程或审计机制。
+58. **最小权限原则**：执行命令、访问文件、修改配置时，仅使用完成任务所需的最小范围。
 
 ## 十一、优先级
 
@@ -138,13 +139,18 @@
 67. **orchestrator 是 workflow brain**：orchestrator 子代理必须读取或遵守 `E:\claude-config\codex\prompts\agents\orchestrator.md`，负责维护 `state.yaml`、`run-log.md`、`blocked-items.md`、`decisions.md` 和 dispatch 文件，拆分任务、维护门禁、生成下一批调度建议；不得直接实现代码或正文产物。
 68. **orchestrator 必须可观测**：启动后 60 秒内必须写入自己的 `heartbeat.md`；中大型编排 3 分钟内必须写入 `dispatch.md`、`progress.md` 或等价草稿。无心跳视为启动/提示词问题；有心跳但无调度产物时，优先 resume/send_input 收敛。
 69. **用户打断转发规则**：长流程运行中收到用户新约束、纠错或暂停要求时，主会话应将新信息追加到 run 日志或发送给 dedicated orchestrator，由 orchestrator 更新 workflow；除紧急安全/破坏性操作拦截外，主会话不直接改写下游任务计划。
-70. **主会话必须执行 controller loop**：一旦 dedicated orchestrator 已启动，主会话必须进入 controller loop：读取 `orchestrator/status.md` 与 `dispatch.md`、执行当前批次、将子任务结果回传 orchestrator、等待 orchestrator 更新下一批，再继续。不得因为单个子任务完成就默认停机。
+70. **主会话必须执行 controller loop**：一旦 dedicated orchestrator 已启动，主会话必须进入 controller loop：优先读取 `orchestrator/status.md` 与 `controller-action.md`，执行当前短动作，将子任务结果回传 orchestrator，等待 orchestrator 更新下一批，再继续。不得因为单个子任务完成就默认停机。
 71. **只有 terminal state 才能停机**：当且仅当 orchestrator 在 `orchestrator/status.md` 中写出 `completed`、`blocked`、`human_required` 或 `paused` 之一时，主会话才可结束该多 Agent 流程；否则默认 workflow 仍然存活。
-72. **status 文件是 controller 的事实源**：专用编排目录中的 `orchestrator/status.md` 是主会话判断“继续 dispatch / 等子任务 / 等 orchestrator / 停机”的短事实源。若 dispatch 与聊天状态不一致，以最新文件状态为准并优先修正 run 文件。
+72. **Lean Controller Loop**：`orchestrator/controller-action.md` 是主会话下一步动作的短事实源；完整 `dispatch.md` 作为审计和异常恢复材料，只有 action 缺失、矛盾、过期或需要排障时才读取。派发子代理时优先使用 `tasks/Txx/prompt.md` 路径和短指令，不在主对话粘贴完整任务卡、上下文卡或 VC。`controller-action.md` 应包含 `user_visible_action`、`scope_digest`、`risk_level`、`requires_memory_write` 和 `expected_changed_paths`，主会话据此向用户说明是否会出现新后台智能体。
+73. **controller-result 标准回传**：主会话执行每批 action 后，应覆盖写入 `orchestrator/controller-result.md`，至少包含 batch/task、agent_id、summary/output 路径、验证命令与结果、变更文件、scope_check、next_expected_owner 和 blocker。不得把完整子任务产物灌入主对话替代该文件；若子任务改变用户可见行为，结果中应引用 fan 手动复验步骤所在文件。
+74. **长任务 progress 门槛**：当子任务 `total_wait_s` 大于 300 秒，orchestrator 生成的 prompt 必须要求 worker 在首个有意义阶段后或 300 秒前写 `progress.md`；主会话只有超时或状态矛盾时才读取 progress。
+75. **terminal 前必须有 run-summary**：当 `status.md` 写出 `completed`、`blocked`、`human_required` 或 `paused` 前，dedicated orchestrator 必须写 `run-summary.md`，记录完成范围、关键变更、验证证据、剩余风险、下一步建议，以及用户可见交付物的 `How To Use` / `Fan Manual Verification`。主会话最终汇报优先读取 `status.md`、`controller-action.md` 和 `run-summary.md`。
+76. **Run Closure Gate**：多 Agent run 进入 terminal state 前，必须使用 `run-closure` Skill 或派发 `authority_skill: run-closure` 的收口任务，生成中文 `00-运行总览.md`、`01-验证与证据.md`、`02-人工复验指南.md`。没有中文三件套时不得标记 `completed`；若收口阻塞，应写 `blocked` 或 `human_required`。
+77. **status 文件是 controller 的事实源**：专用编排目录中的 `orchestrator/status.md` 是主会话判断“继续 dispatch / 等子任务 / 等 orchestrator / 停机”的短事实源。若 action/dispatch 与聊天状态不一致，以最新文件状态为准并优先修正 run 文件。
 
 ## 十四、系统级文件维护
 
-73. **系统级入口必须自包含**：`C:\Users\fanjiang\.codex\AGENTS.md` 和 `C:\Users\fanjiang\.claude\CLAUDE.md` 都是各自工具可能自动读取的入口，不能只写外部文件指针。
-74. **通用协议是同步参考**：`E:\日常仓库\05_Templates\知识库规范\Agent通用协作协议.md` 用于跨平台抽象、对照和同步，不替代系统级入口正文。
-75. **修改顺序**：规则变化时，先判断属于 Codex 系统规范、Claude 系统规范、项目规则还是跨平台抽象；再分别更新对应系统级入口、项目入口和通用协议。
-76. **防止双写分叉**：系统级入口可以各自自包含，但同类规则变更后必须搜索并同步另一侧对应规则或明确记录差异原因。
+78. **系统级入口必须自包含**：`C:\Users\fanjiang\.codex\AGENTS.md` 和 `C:\Users\fanjiang\.claude\CLAUDE.md` 都是各自工具可能自动读取的入口，不能只写外部文件指针。
+79. **通用协议是同步参考**：`E:\日常仓库\05_Templates\知识库规范\Agent通用协作协议.md` 用于跨平台抽象、对照和同步，不替代系统级入口正文。
+80. **修改顺序**：规则变化时，先判断属于 Codex 系统规范、Claude 系统规范、项目规则还是跨平台抽象；再分别更新对应系统级入口、项目入口和通用协议。
+81. **防止双写分叉**：系统级入口可以各自自包含，但同类规则变更后必须搜索并同步另一侧对应规则或明确记录差异原因。

@@ -17,6 +17,16 @@ model: opus
 
 > **铁律：只审不改。发现问题的职责到此为止——不修复、不重写、不给修复代码。**
 
+## Codex 文件驱动协议
+
+Codex 下由 orchestrator/controller 按 `codex/references/file-driven-agent-orchestration.md` 派发本 Agent：
+
+- 只读取 Context Card、VC、worker 最终输出、授权的 changed files 或 diff。
+- 审查报告写入指定 `review.md`，并写 `result-summary.md` 给 controller handoff。
+- 报告必须标注审查范围、证据来源、未审范围和残留风险。
+- 若发现 worker 缺少验证证据、`How To Use` / `Fan Manual Verification`、或必要 Context Surface Sync，应作为审查发现写入报告。
+- 不修改代码、文档或 run-global 状态。
+
 ## 入口判定
 
 **orchestrator 传入 Context Card（代码产出路径 + VC 断言摘录）** → 直接执行
@@ -76,6 +86,14 @@ model: opus
 ## 总结
 - Critical: N | Important: N | Minor: N
 - 结论: PASS（无Critical）/ FAIL（有Critical）
+
+## Delivery Evidence
+- worker output present: yes/no
+- result-summary present: yes/no
+- verification evidence present: yes/no
+- fan manual verification present when needed: yes/no/not_applicable
+- context surface sync present when needed: yes/no/not_applicable
+- unreviewed scope:
 ```
 
 ## 输出示例

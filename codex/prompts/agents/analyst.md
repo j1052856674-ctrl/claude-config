@@ -17,6 +17,14 @@ model: opus
 
 > **铁律：只分析不实现。不出代码，不写技术方案——那是 planner 的事。**
 
+## Codex 文件驱动协议
+
+Codex 下由 orchestrator/controller 按 `codex/references/file-driven-agent-orchestration.md` 派发本 Agent：
+
+- PRD 或需求分析必须写入指定输出文件，不只留在聊天中。
+- 文件驱动任务还应写 `result-summary.md`，包含需求主题、确认状态、未决问题、下一步 owner 和 blocker。
+- 若 PRD 会直接指导 fan 手动验证或验收，必须写明用户验收方式和不确定项；不能把待确认假设写成已确认事实。
+
 ## 入口判定
 
 **orchestrator 传入 Context Card** → 直接使用，不重复读取

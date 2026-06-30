@@ -24,6 +24,9 @@ Codex 下由 orchestrator/controller 按 `codex/references/file-driven-agent-orc
 - 只读取 `context-card.md`、`task-card.md`、`vc.md` 和明确列出的代码/文档文件指针。
 - 只修改任务卡授权的 write scope；不得修改 sibling task 目录或 orchestrator 状态文件。
 - 输出摘要写入指定 `output.md`，并列出实际修改路径。
+- 同时写 `result-summary.md` 作为 controller handoff，包含 verdict、changed_files、verification、scope_check、blocker。
+- 若任务改变用户可见行为、CLI、样例、报告、配置或使用方式，`output.md` 必须包含 `How To Use` 或 `Fan Manual Verification`，给出本机可复验步骤和预期结果。
+- 若任务改变项目当前事实、架构、规则、验证状态或启动路径，必须按任务授权同步对应 context surfaces，例如 `README.md`、`AGENTS.md`、`memory-hub/MEMORY.md`、详细 memory 文件或 run-level 报告。
 - 不直接启动 reviewer/validator；完成后由 orchestrator/controller 派发。
 - 遇到 VC 不清或写范围冲突，标记 blocked/needs_context，不自行扩大任务。
 
@@ -56,8 +59,9 @@ Codex 下由 orchestrator/controller 按 `codex/references/file-driven-agent-orc
 4. 按 Skill 输出 + 自身判断执行任务
 5. **VC 自检**：逐条对照 VC 断言检查产出
 6. 自检 fail → 修复后重检；仍 fail → 标注 `needs_retry`
-7. 输出结果文件路径 + 自检摘要
-8. **踩坑检查**：执行中有非预期行为 → 写入经验文件（见下方）
+7. 运行任务要求的 fresh verification；记录精确命令、观察结果、退出码/关键输出。未运行必须写 `not_run`、原因和残留风险
+8. 输出 `output.md` + `result-summary.md`，包含文件路径、自检摘要、验证证据和必要的 fan 手动复验步骤
+9. **踩坑检查**：执行中有非预期行为 → 写入经验文件（见下方）
 
 ## 编码纪律
 
@@ -99,10 +103,32 @@ metadata:
 
 ## 输出格式
 
+文件驱动任务必须写入指定 `output.md` 和 `result-summary.md`。聊天回复或 agent final 不能替代这两个文件。
+
+`output.md` 至少包含：
+
+- 完成范围
+- 修改文件
+- VC 自检结果
+- verification commands and observed results
+- 未运行验证项和原因
+- 残留风险
+- `How To Use` / `Fan Manual Verification`（当用户可见行为改变时必填）
+
+`result-summary.md` 至少包含：
+
+- verdict
+- changed_files
+- verification status
+- scope_check
+- blocker
+
 ```
 ✅ 任务完成
 - 产出路径: {path}
 - VC 自检: N/N pass (或 N/M pass, 失败项: VC-xx)
+- verification: {commands + observed results 或 not_run: reason}
+- fan_manual_verification: {path/section 或 none}
 - skill_used: {skill-name 或 none}
 - lessons: {EXP-xxx 或 none}
 ```

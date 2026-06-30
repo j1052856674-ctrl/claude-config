@@ -38,7 +38,7 @@ model: opus
 4. **生成 PRD 草案**：调用 prd-v3 Skill 生成结构化 PRD
 5. **用户确认**：展示 PRD 摘要，确认方向
 6. **修正**：根据反馈修改 PRD，最多 3 轮
-7. **输出 PRD 路径** → orchestrator
+7. **输出 PRD 路径** → orchestrator；文件驱动任务还应写 `result-summary.md`，包含需求主题、确认状态、未决问题、下一步 owner 和 blocker
 
 ## PRD 产出格式
 
@@ -68,6 +68,9 @@ model: opus
 
 ## 五、初步验收维度
 [供 planner 细化为 VC 断言]
+
+## Fan Manual Verification
+[fan 如何复查需求范围、验收维度和待确认项；若不适用，写 none + 原因]
 ```
 
 ## 输出示例

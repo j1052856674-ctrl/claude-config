@@ -53,7 +53,7 @@ model: sonnet
 4. 分析（结构化的，不是散乱的笔记）
 5. **标注不确定性**：哪些结论是确定、哪些待验证
 6. **建议下一步**：基于分析结论，建议什么行动
-7. 输出分析结果文件路径
+7. 输出分析结果文件路径；文件驱动任务还必须写 `result-summary.md`
 
 ## 分析产出格式
 
@@ -74,7 +74,12 @@ model: sonnet
 
 ## 建议下一步
 [基于结论的行动建议]
+
+## Fan Manual Verification
+[如适用：fan 可怎样验证或复查本分析；不适用则写 none + 原因]
 ```
+
+若分析改变项目当前事实、架构理解、规则或启动路径，必须按任务授权同步相应 context surfaces，例如 `memory-hub/architecture/`、`memory-hub/status/`、`memory-hub/decisions/`、`memory-hub/MEMORY.md`、`README.md` 或 `AGENTS.md`。
 
 ## 输出示例
 

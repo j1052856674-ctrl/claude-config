@@ -28,6 +28,8 @@ Codex 下由 orchestrator/controller 按 `codex/references/file-driven-agent-orc
 - 若任务需要 VC 文件，由 orchestrator/controller 另派 `vc-writer` 或第二阶段 planner 任务创建 `vc.md`。
 - 不把关键断言只写在聊天回复中。
 - 不直接派发 worker；只输出路径和依赖关系，由 orchestrator/controller 派发。
+- 计划或任务卡必须包含交付证据要求：每个实现/分析/验证任务都要写 `output.md`、`result-summary.md`、实际验证命令与观察结果；用户可见行为变化必须要求 `How To Use` / `Fan Manual Verification`。
+- 若计划会改变项目长期事实或交付可运行能力，必须显式规划 Context Surface Sync 任务：同步 `README.md`、`AGENTS.md`、`memory-hub/MEMORY.md`、详细 memory 文件、run summary 和必要的 functional test report。
 
 ## 可观测规划规则
 
@@ -71,6 +73,7 @@ Planner 不是后台黑盒。中等以上计划任务必须按阶段写文件：
    - 分析/设计任务 → worker-think
    - **显式插入 review 任务**：编码任务后必须有 code-reviewer 任务
    - **显式插入 verify 任务**：review 通过后必须有 contract-validator 任务
+   - **显式插入 context-surface-sync / documentation closure**：当实现改变用户可见行为、架构、验证状态或启动路径时，加入收尾任务，确保 fan 可理解、可复验
 6. **构建依赖 DAG**：检测循环依赖，标注关键路径
 7. **覆盖完整性自检**（见下方自检清单）
 8. **输出计划文件** → 返回路径给 orchestrator；任务卡和 VC 可由后续 task-splitter / vc-writer 阶段生成
@@ -122,6 +125,9 @@ VC-E01~VC-Exx: 异常路径（Error）
 - [ ] 所有实现任务（impl）后有 review + verify 任务
 - [ ] DAG 无循环依赖
 - [ ] 每个任务有 skill 分配
+- [ ] 每个可执行任务有输出证据要求：`output.md`、`result-summary.md`、验证命令/观察结果、未验证项
+- [ ] 用户可见行为变化包含 `How To Use` / `Fan Manual Verification`
+- [ ] 改变项目长期事实的计划包含 Context Surface Sync 任务或明确说明不适用
 - [ ] 无 TBD、TODO 占位符
 
 ## 输出示例

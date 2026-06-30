@@ -38,6 +38,7 @@ Runtime role: worker|default
 - [ ] 已明确本批 dispatch 的单一目标，不把 plan/task split/vc/implementation 混成一批。
 - [ ] 已明确主会话只是 transport/controller，不会替你改写 workflow。
 - [ ] 已明确下一批需要主会话检查哪些文件，失败后该 resume、重派、降级还是暂停。
+- [ ] 已检查能力矩阵；若本批任务属于已有权威 Skill 的能力域，已为其绑定 `authority_skill`。
 
 首批调度前必须满足两条硬门槛：
 
@@ -93,26 +94,37 @@ Runtime role: worker|default
   run-log.md
   blocked-items.md
   decisions.md
+  run-summary.md
   tasks/
     T01-{slug}/
       heartbeat.md
       progress.md
+      prompt.md
       task-card.md
       context-card.md
       vc.md
       output.md
+      result-summary.md
       review.md
       verify.md
   orchestrator/
     heartbeat.md
     progress.md
     dispatch.md
+    status.md
+    controller-action.md
+    controller-result.md
 ```
 
 - `state.yaml` 是任务状态、agent_id、依赖和产物路径的事实源。
 - `run-log.md` 是审计日志，由 orchestrator 更新；主会话只在转发用户打断、工具执行结果或紧急拦截时追加必要记录。
+- `run-summary.md` 是 terminal state 前必须写出的短总览，包含完成范围、变更文件、验证证据、剩余风险和下一步建议。
 - `orchestrator/heartbeat.md` 是 dedicated orchestrator 的早期活性信号。
-- `orchestrator/dispatch.md` 是主会话下一步执行的调度请求，不得只把 dispatch 写在聊天回复中。
+- `orchestrator/dispatch.md` 是完整调度请求和审计材料，不得只把 dispatch 写在聊天回复中。
+- `orchestrator/status.md` 是主会话判断继续、等待、停机的短事实源。
+- `orchestrator/controller-action.md` 是主会话优先读取的最小可执行动作文件。
+- `orchestrator/controller-result.md` 是主会话回传本批执行结果的短文件。
+- `tasks/Txx/prompt.md` 是子 Agent 的完整任务提示词；主会话派发时只传这个路径和短指令。
 - 非平凡子任务必须先写 `heartbeat.md`；中大型任务必须用 `progress.md` 或草稿文件提供阶段进展。
 - 子 Agent 不直接互相通信；所有交接通过任务目录中的文件路径。
 - 子 Agent 只读自己的 `context-card.md`、`task-card.md`、`vc.md` 和明确列出的文件指针。
@@ -127,6 +139,132 @@ Runtime role: worker|default
 - 每次收到用户新约束或主会话执行结果后，更新 `run-log.md`，必要时更新 `state.yaml` 和下一批 `dispatch.md`。
 - 不要把关键调度状态只保存在私有上下文里。
 
+## Lean Controller Loop 契约
+
+为降低主对话上下文消耗，每一批可执行调度必须同时维护三类文件：
+
+1. `orchestrator/dispatch.md`：完整调度说明和审计材料，供异常排查、人工审查和子流程复盘使用。
+2. `orchestrator/controller-action.md`：主会话优先读取的短动作文件，只包含执行下一步所需字段。
+3. `tasks/Txx/prompt.md`：子 Agent 的完整 prompt，承载 Context Card、Skill 绑定、任务边界、输入文件路径、输出文件路径和验证要求。
+
+`controller-action.md` 建议格式：
+
+```markdown
+# Controller Action
+
+- batch_id: Dxx
+- action: spawn | resume | wait | stop
+- task_id: Txx
+- semantic_role: worker-code | planner | validator | orchestrator
+- runtime_role: worker | default
+- agent_id: none | existing-agent-id
+- user_visible_action: spawn_new_worker | resume_existing_orchestrator | resume_existing_worker | wait_existing_agent | stop
+- scope_digest: one-line task boundary for the main session
+- risk_level: low | medium | high
+- requires_memory_write: true | false
+- expected_changed_paths: path globs or none
+- task_dir: 08_Reports/runs/{run-id}/tasks/Txx-{slug}
+- prompt_file: 08_Reports/runs/{run-id}/tasks/Txx-{slug}/prompt.md
+- first_signal_file: 08_Reports/runs/{run-id}/tasks/Txx-{slug}/heartbeat.md
+- first_signal_s: 60
+- total_wait_s: 120 | 300 | 600
+- result_summary_file: 08_Reports/runs/{run-id}/tasks/Txx-{slug}/result-summary.md
+- fallback: read heartbeat on timeout; otherwise send result-summary path back to orchestrator
+- terminal_state: none | completed | blocked | human_required | paused
+- updated_at: 2026-06-30T00:00:00+08:00
+```
+
+规则：
+
+- 主会话正常路径只读 `status.md` 和 `controller-action.md`；只有 action 缺失、互相矛盾或需要审计时才读完整 `dispatch.md`。
+- 主会话派发子 Agent 时使用短提示：`Read this prompt file and execute it exactly: <prompt_file>`，不在主对话拼接大段任务卡、上下文卡或 VC。
+- `prompt.md` 必须自包含到足以让子 Agent 独立执行：前 200 tokens 内声明 Semantic role、项目 Context Card、authority_skill、任务目录、可写范围和禁止事项。
+- `prompt.md` 必须要求子 Agent 先写 `heartbeat.md`，再读取任务卡、上下文卡、VC 和代码文件。
+- `prompt.md` 必须要求子 Agent 写 `output.md` 和 `result-summary.md`，并记录实际验证命令、观察结果、退出码/关键输出；若验证未运行，必须写 `not_run` 与原因。
+- 若子任务改变用户可见行为、CLI、样例、报告、README、配置或使用方式，`prompt.md` 必须要求 `output.md` 包含 `How To Use` 或 `Fan Manual Verification`，让 fan 能独立复验。
+- 若子任务改变项目当前事实、架构、规则、验证状态或用户启动路径，`prompt.md` 必须显式要求同步相应 context surfaces：`README.md`、`AGENTS.md`、`memory-hub/MEMORY.md`、`memory-hub/architecture/`、`memory-hub/status/`、`memory-hub/reviews/` 或 run-level 报告。
+- 小任务默认一次 `wait_agent` 120 秒；中任务默认一次 300 秒；只有超时才读 `heartbeat.md` / `progress.md` 诊断。
+- 当 `total_wait_s` 大于 300 时，子 Agent prompt 必须要求在第一个有意义阶段后或 300 秒前写 `progress.md`。
+- `user_visible_action` 必须区分新开 worker、恢复 orchestrator、恢复 worker、等待已有 agent 或停止，方便主会话向用户解释旁边是否应该出现新后台智能体。
+- 子任务完成后，主会话优先回传 `result-summary.md` 路径；若没有该文件，再读取 `output.md` 前 80-120 行作为摘要，不把完整产物灌入主对话。
+
+## Controller Result 与 Run Summary
+
+主会话每执行完一批短动作后，应覆盖写入 `orchestrator/controller-result.md`，你收到后必须用它更新 `status.md`、必要时更新 `dispatch.md` / `controller-action.md`。模板字段如下：
+
+```markdown
+# Controller Result
+
+- batch_id: Dxx
+- task_id: Txx
+- action_result: completed | failed | timed_out | blocked | skipped
+- agent_id: agent-id-or-none
+- result_summary_file: path-or-none
+- output_file: path-or-none
+- verification:
+  - command: exact command
+    result: short observed result
+- fan_manual_verification: path-or-none
+- changed_files:
+  - path
+- scope_check: one-line confirmation or violation
+- next_expected_owner: orchestrator | controller | user
+- blocker: none | short blocker
+```
+
+当你准备写出 `terminal_state` 为 `completed`、`blocked`、`human_required` 或 `paused` 时，必须先写或更新 run 根目录下的 `run-summary.md`，内容包括：
+
+- terminal state 与原因
+- 已完成 batch/task
+- 关键变更文件
+- 验证命令与结果
+- fan 可自行复验的命令、步骤或报告路径；若不适用，说明原因
+- 剩余风险
+- 下一步建议
+
+如果 run closure worker 在你写 terminal state 前已生成中文三件套，你写入最终 `terminal_state` 后必须复核并必要时更新：
+
+- `00-运行总览.md`
+- `01-验证与证据.md`
+- `02-人工复验指南.md`
+
+三件套必须与 `orchestrator/status.md` 和 `run-summary.md` 的最终状态一致，尤其 `00-运行总览.md` 不能继续显示“等待 orchestrator 回验”或 `terminal_state: none`。若发现不一致，应先生成纠偏 dispatch 或由你在 run 目录内修正收口文件，再把 workflow 视为完成。
+
+主会话最终汇报应优先读取 `status.md`、`controller-action.md` 和 `run-summary.md`，而不是回放所有任务产物。
+
+## Delivery Evidence Contract
+
+每个可执行子任务的 `prompt.md` 必须包含明确的交付证据要求，避免 worker 只在聊天里说“完成了”：
+
+- `output.md`：详细说明完成范围、修改文件、验证命令、观察结果、未验证项、残留风险。
+- `result-summary.md`：面向 controller 的短摘要，包含 verdict、changed_files、verification、scope_check、blocker。
+- 用户可见行为变化：必须写 `How To Use` / `Fan Manual Verification`，给出 fan 在本机可执行的最小命令或检查路径。
+- run 收口：terminal 前必须使用 `run-closure` Skill 或派发 `authority_skill: run-closure` 的收口任务，生成中文 `00-运行总览.md`、`01-验证与证据.md`、`02-人工复验指南.md`。
+- 验证报告：若 run 交付 CLI、样例、报告、自动化、用户流程或可运行工具，验证证据优先写入 `01-验证与证据.md`；如仍保留 `functional-test-report.md`，必须在中文三件套中指向它。
+- 项目长期事实变化：必须同步项目 `memory-hub` 对应正文文件和 `MEMORY.md` 索引；不要只留 pointer-only 结论。
+- 不得把未运行的测试写成 pass；必须写 `not_run`、原因和残留风险。
+
+## Run Closure Gate
+
+当你准备进入 terminal state 前，必须先完成 run closure。推荐调度方式：
+
+```markdown
+| task_id | semantic_role | runtime_role | authority_skill | optional_supporting_skills | task_dir | prompt_source | expected_first_file | first_signal_s | total_wait_s |
+|---|---|---|---|---|---|---|---|---:|---:|
+| Txx-run-closure | worker-think | worker | run-closure | memory-bridge | 08_Reports/runs/{run-id}/tasks/Txx-run-closure | tasks/Txx-run-closure/prompt.md | tasks/Txx-run-closure/heartbeat.md | 60 | 300 |
+```
+
+closure prompt 必须要求 worker：
+
+- 读取 run 目录和 task 摘要；
+- 写中文 `00-运行总览.md`、`01-验证与证据.md`、`02-人工复验指南.md`；
+- 必要时写或更新 task 级中文 `result-summary.md`；
+- 判断是否需要同步项目 `memory-hub`；
+- 若同步了 memory-hub，更新 `memory-hub/MEMORY.md`；
+- 在 `result-summary.md` 中说明 fan 应优先看哪个文件。
+
+没有中文三件套时，不得写 `terminal_state: completed`。有中文三件套但内容仍停留在 closure 前状态、与最终 `orchestrator/status.md` 不一致时，也不得把 run 视为完成；必须先回刷三件套或派发纠偏收口任务。如果 closure 被阻塞，应写 `terminal_state: blocked` 或 `human_required` 并说明原因。
+
 ## Dispatch Request 契约
 
 `orchestrator/dispatch.md` 每次只描述一批可执行调度，建议小批量推进。必须包含：
@@ -140,8 +278,8 @@ Runtime role: worker|default
 - depends_on: 前置文件或任务
 
 ## Agents To Spawn Or Resume
-| task_id | semantic_role | runtime_role | task_dir | prompt_source | expected_first_file | first_signal_s | total_wait_s |
-|---|---|---|---|---|---|---:|---:|
+| task_id | semantic_role | runtime_role | authority_skill | optional_supporting_skills | task_dir | prompt_source | expected_first_file | first_signal_s | total_wait_s |
+|---|---|---|---|---|---|---|---|---:|---:|
 
 ## Required Controller Actions
 1. 主会话应执行的 spawn/resume/wait/close 步骤。
@@ -153,6 +291,17 @@ Runtime role: worker|default
 ```
 
 主会话执行 dispatch 后，会把结果写回 run 日志或发送给你。你再生成下一批 dispatch。
+
+## Skill / 能力矩阵约束
+
+你必须把 Skill 当作编排输入，而不是事后附注。
+
+规则：
+
+- 若任务能力域在能力矩阵中已有权威 Skill，则必须在 `dispatch.md` 中写明 `authority_skill`。
+- 若只是辅助增强，可额外写 `optional_supporting_skills`，但不能用它替代 `authority_skill`。
+- 若没有合适 Skill，可写 `authority_skill: none`，但应在任务说明中简要解释为什么现有 Skill 不适配。
+- 若任务卡存在而缺少 skill 绑定，你应优先补齐或要求纠偏，而不是默认继续派发通用 worker。
 
 ## Controller Handoff 规则
 

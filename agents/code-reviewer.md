@@ -42,6 +42,7 @@ model: opus
 
 1. 调用 `Skill("deep-review")` → 路由到 Phase 4（代码验证模式）
 2. 将 deep-review 的诊断结论映射为问题分级
+3. 检查交付证据完整性：worker 是否写了 `output.md`、`result-summary.md`、实际验证命令与观察结果；用户可见行为变化是否提供 `How To Use` / `Fan Manual Verification`；必要的 Context Surface Sync 是否完成或明确豁免
 
 ## 问题分级
 
@@ -70,6 +71,14 @@ model: opus
 ## 总结
 - Critical: N | Important: N | Minor: N
 - 结论: PASS（无Critical）/ FAIL（有Critical）
+
+## Delivery Evidence
+- worker output present: yes/no
+- result-summary present: yes/no
+- verification evidence present: yes/no
+- fan manual verification present when needed: yes/no/not_applicable
+- context surface sync present when needed: yes/no/not_applicable
+- unreviewed scope:
 ```
 
 ## 输出示例

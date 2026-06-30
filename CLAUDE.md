@@ -239,13 +239,18 @@ depends_on:
 67. **主会话必须执行 controller loop**：一旦 dedicated orchestrator 已启动，主会话必须进入 controller loop：读取 `orchestrator/status.md` 与 `dispatch.md`、执行当前批次、将子任务结果回传 orchestrator、等待 orchestrator 更新下一批，再继续。不得因为单个子任务完成就默认停机。
 68. **只有 terminal state 才能停机**：当且仅当 orchestrator 在 `orchestrator/status.md` 中写出 `completed`、`blocked`、`human_required` 或 `paused` 之一时，主会话才可结束该多 Agent 流程；否则默认 workflow 仍然存活。
 69. **status 文件是 controller 的事实源**：专用编排目录中的 `orchestrator/status.md` 是主会话判断"继续 dispatch / 等子任务 / 等 orchestrator / 停机"的短事实源。若 dispatch 与聊天状态不一致，以最新文件状态为准并优先修正 run 文件。
+70. **Lean Controller Loop**：长流程中 orchestrator 必须维护 `orchestrator/controller-action.md` 和 `tasks/Txx/prompt.md`。主会话正常路径只读 `status.md` + `controller-action.md`，派发子 Agent 时只传 prompt 文件路径；完整 `dispatch.md` 主要用于审计、恢复和异常诊断。
+71. **交付证据契约**：每个可执行子任务必须写 `output.md` 和 `result-summary.md`，记录实际验证命令、观察结果、未验证项和残留风险。用户可见行为、CLI、样例、报告、配置或使用方式变化时，必须写 `How To Use` / `Fan Manual Verification`。
+72. **Context Surface Sync**：当实现、架构、验证状态、规则或启动路径改变项目长期事实时，必须同步项目 `README.md`、`AGENTS.md`、`memory-hub/MEMORY.md`、详细 memory 文件和 run 报告；不能只把结论留在聊天或子任务输出里。
+73. **Run Closure Gate**：多 Agent run 进入 terminal state 前，必须使用 `run-closure` Skill 或派发 `authority_skill: run-closure` 的收口任务，生成中文 `00-运行总览.md`、`01-验证与证据.md`、`02-人工复验指南.md`。没有三件套不得标记 `completed`。
+74. **终态一致性**：若三件套是在 terminal state 前生成，orchestrator 写入最终 `completed`、`blocked`、`human_required` 或 `paused` 后必须回刷三件套，确保它们与 `orchestrator/status.md`、`run-summary.md` 一致；若仍显示“等待回验”或 `terminal_state: none`，不得视为完成。
 
 ## 十八、系统级文件维护
 
-70. **系统级入口必须自包含**：`C:\Users\fanjiang\.codex\AGENTS.md` 和 `C:\Users\fanjiang\.claude\CLAUDE.md` 都是各自工具可能自动读取的入口，不能只写外部文件指针。
-71. **通用协议是同步参考**：`E:\日常仓库\05_Templates\知识库规范\Agent通用协作协议.md` 用于跨平台抽象、对照和同步，不替代系统级入口正文。
-72. **修改顺序**：规则变化时，先判断属于 Codex 系统规范、Claude 系统规范、项目规则还是跨平台抽象；再分别更新对应系统级入口、项目入口和通用协议。
-73. **防止双写分叉**：系统级入口可以各自自包含，但同类规则变更后必须搜索并同步另一侧对应规则或明确记录差异原因。
+75. **系统级入口必须自包含**：`C:\Users\fanjiang\.codex\AGENTS.md` 和 `C:\Users\fanjiang\.claude\CLAUDE.md` 都是各自工具可能自动读取的入口，不能只写外部文件指针。
+76. **通用协议是同步参考**：`E:\日常仓库\05_Templates\知识库规范\Agent通用协作协议.md` 用于跨平台抽象、对照和同步，不替代系统级入口正文。
+77. **修改顺序**：规则变化时，先判断属于 Codex 系统规范、Claude 系统规范、项目规则还是跨平台抽象；再分别更新对应系统级入口、项目入口和通用协议。
+78. **防止双写分叉**：系统级入口可以各自自包含，但同类规则变更后必须搜索并同步另一侧对应规则或明确记录差异原因。
 
 ## Universal Agent Memory Adapter
 
